@@ -84,7 +84,7 @@ JSON
   "success": true,
   "data": {
     "id": 1,
-    "name": "김개발",
+    "name": "홍길동동",
     "role": "DEVELOPER"
   }
 }
