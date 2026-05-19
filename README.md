@@ -1,11 +1,11 @@
-# 🛠️ [프로젝트명] API 서버
+# [프로젝트명] API 서버
 
 Spring Boot 기반 REST API 서버입니다.  
 프론트엔드 개발자가 즉시 작업을 시작할 수 있도록 Swagger + 더미 데이터로 구성되어 있습니다.
 
 ---
 
-## 📌 기술 스택
+## 기술 스택
 
 - Java 17
 - Spring Boot 3.x
@@ -16,7 +16,7 @@ Spring Boot 기반 REST API 서버입니다.
 
 ---
 
-## 🚀 실행 방법
+## 실행 방법
 
 ```bash
 ./gradlew bootRun
@@ -24,9 +24,9 @@ Spring Boot 기반 REST API 서버입니다.
 실행 후 아래 주소로 Swagger UI 접속:
 
 http://localhost:8080/swagger-ui/index.html
-💡 CORS 안내: 로컬 개발 환경에서의 원활한 연동을 위해 프론트엔드 기본 포트(예: localhost:3000, localhost:5173 등)에 대한 CORS 정책은 백엔드에서 모두 허용(Allow) 설정되어 있습니다.
+-CORS 안내: 로컬 개발 환경에서의 원활한 연동을 위해 프론트엔드 기본 포트(예: localhost:3000, localhost:5173 등)에 대한 CORS 정책은 백엔드에서 모두 허용(Allow) 설정되어 있습니다.
 
-📂 패키지 구조
+패키지 구조
 src/main/java/com/example/springstudy/
 │
 ├── SpringstudyApplication.java
@@ -53,8 +53,10 @@ src/main/java/com/example/springstudy/
 │
 ├── repository/            ← 추후 추가 예정
 └── service/               ← 추후 추가 예정
-📡 API 목록
+
+API 목록
 공통 응답 구조
+
 
 모든 API는 아래 형태로 응답합니다.
 
@@ -63,7 +65,8 @@ JSON
   "success": true,
   "data": { ... }
 }
-🔐 인증
+
+인증
 
 Method	URL	설명
 POST	/api/auth/login	로그인 (세션 기반)
@@ -85,17 +88,18 @@ JSON
     "role": "DEVELOPER"
   }
 }
-👤 개발자 프로필
+
+개발자 프로필
 
 Method	URL	설명
 GET	/api/member/profile	내 프로필 조회
 PUT	/api/member/profile	프로필 수정
 POST	/api/member/profile/image	프로필 이미지 업로드
-⚠️ 이미지 업로드 제약: 이미지 업로드는 multipart/form-data 형식으로 전송해야 합니다. (JSON 아님) 서버는 이미지를 저장한 후 저장 경로(URL)를 반환하므로, 클라이언트는 이를 받아 화면의 이미지를 갱신해 주세요.
+이미지 업로드 제약: 이미지 업로드는 multipart/form-data 형식으로 전송해야 합니다. (JSON 아님) 서버는 이미지를 저장한 후 저장 경로(URL)를 반환하므로, 클라이언트는 이를 받아 화면의 이미지를 갱신해 주세요.
 
-⚠️ 태그 개수 제한 경고: 프로필 수정(PUT) 시 기술 스택(검색 태그)이 **5개를 초과(6개 이상)**할 경우 서버에서 400 Bad Request 에러를 반환할 예정입니다. 사용자가 태그를 6개 이상 등록하려고 하면 프론트엔드 단에서 알림창(alert) 등으로 사전에 차단해 주시기 바랍니다. (태그 옆 X 버튼을 통한 삭제 기능 구현 필요)
+태그 개수 제한 경고: 프로필 수정(PUT) 시 기술 스택(검색 태그)이 **5개를 초과(6개 이상)**할 경우 서버에서 400 Bad Request 에러를 반환할 예정입니다. 사용자가 태그를 6개 이상 등록하려고 하면 프론트엔드 단에서 알림창(alert) 등으로 사전에 차단해 주시기 바랍니다. (태그 옆 X 버튼을 통한 삭제 기능 구현 필요)
 
-📋 프로젝트
+프로젝트
 
 Method	URL	설명
 GET	/api/projects	프로젝트 목록 조회 (페이징, 정렬, 필터)
@@ -125,22 +129,24 @@ JSON
     "last": false
   }
 }
-⚠️ 더보기 버튼 처리: 응답 데이터의 last: true 이면 마지막 페이지이므로 화면의 '더보기' 버튼을 비활성화해 주세요. 새로운 페이지를 요청할 때마다 서버로부터 누적이 아닌 해당 페이지의 데이터만 수신합니다.
+더보기 버튼 처리: 응답 데이터의 last: true 이면 마지막 페이지이므로 화면의 '더보기' 버튼을 비활성화해 주세요. 새로운 페이지를 요청할 때마다 서버로부터 누적이 아닌 해당 페이지의 데이터만 수신합니다.
 
-📝 지원
+지원
 
 Method	URL	설명
 POST	/api/applications	프로젝트 지원하기
 GET	/api/applications/my	내가 지원한 프로젝트 목록
 GET	/api/applications/{applicationId}	지원서 상세 조회
-⚠️ 지원서 제한 사항: 지원서 내용(proposalContent)에 이메일이나 전화번호 등 개인 연락처가 포함된 경우 서버에서 400 Bad Request 에러를 반환할 예정입니다. (DB 연동 및 유효성 검사 로직 도입 후 적용 예정)
 
-⚠️ 현재 더미 데이터 한계 (프론트 개발 시 참고)
+지원서 제한 사항: 지원서 내용(proposalContent)에 이메일이나 전화번호 등 개인 연락처가 포함된 경우 서버에서 400 Bad Request 에러를 반환할 예정입니다. (DB 연동 및 유효성 검사 로직 도입 후 적용 예정)
+
+현재 더미 데이터 한계 (프론트 개발 시 참고)
 항목	내용
 고정 응답	어떤 ID로 요청해도 항상 같은 형태의 고정된 더미 데이터가 반환됩니다.
 세션 미적용	로그인 API는 성공 응답을 주지만 실제 세션 유지는 되지 않습니다. — 4단계에서 적용 예정
 데이터 갱신 미반영	프로젝트 등록이나 지원을 성공해도 목록의 카운트(applicantCount 등)는 증가하지 않습니다. — 3단계에서 실제 DB 연동 후 반영 예정
-🗓️ 개발 단계
+
+개발 단계
 [x] 1단계 — Domain / DTO / Controller (더미 데이터 구조 설계 완료)
 
 [ ] 2단계 — Repository / Service 비즈니스 로직 구현
