@@ -94,7 +94,7 @@ JSON
 Method	URL	설명
 GET	/api/member/profile	내 프로필 조회
 PUT	/api/member/profile	프로필 수정
-POST	/api/member/profile/image	프로필 이미지 업로드
+POST /api/member/profile/image	프로필 이미지 업로드
 이미지 업로드 제약: 이미지 업로드는 multipart/form-data 형식으로 전송해야 합니다. (JSON 아님) 서버는 이미지를 저장한 후 저장 경로(URL)를 반환하므로, 클라이언트는 이를 받아 화면의 이미지를 갱신해 주세요.
 
 태그 개수 제한 경고: 프로필 수정(PUT) 시 기술 스택(검색 태그)가 5개를 초과(6개 이상)할 경우 서버에서 400 Bad Request 에러를 반환할 예정입니다. 사용자가 태그를 6개 이상 등록하려고 하면 프론트엔드 단에서 알림창(alert) 등으로 사전에 차단해 주시기 바랍니다. (태그 옆 X 버튼을 통한 삭제 기능 구현 필요)
