@@ -62,7 +62,7 @@ src/main/java/com/example/springstudy/
 API 목록
 
 공통 응답 구조
-모든 API는 아래 형태로 응답합니다.
+모든 API는 아래 형태로 응답
 JSON
 {
   "success": true,
