@@ -42,4 +42,5 @@ public class Project {
     private String requiredSkills;    // 필요기술
     private Integer estimatedDays;    // 예상기간
     private String kickoffDate;       // 킥오프시점
+    private String employmentType; // 도급/상주
 }

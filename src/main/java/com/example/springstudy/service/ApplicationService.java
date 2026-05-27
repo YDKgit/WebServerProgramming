@@ -1,64 +1,90 @@
 package com.example.springstudy.service;
 
 
+import com.example.springstudy.domain.Application;
+import com.example.springstudy.domain.Member;
+import com.example.springstudy.domain.Project;
 import com.example.springstudy.dto.ApplicationDto;
+import com.example.springstudy.repository.ApplicationRepository;
+import com.example.springstudy.repository.MemberRepository;
+import com.example.springstudy.repository.ProjectRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ApplicationService {
+
+    private final ApplicationRepository applicationRepository;
+    private final ProjectRepository projectRepository;
+    private final MemberRepository memberRepository;
+
+    public List<Application> getApplication(){
+        return applicationRepository.findAll();
+    }
 
     public ApplicationDto.ApplyResponse apply(ApplicationDto.ApplyRequest request) {
 
+        Project project = projectRepository.findById(request.getProjectId())
+                .orElseThrow(() -> new RuntimeException("프로젝트를 찾을 수 없습니다."));
+
+        Member developer = memberRepository.findById(1L)
+                .orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+
+        Application application = new Application();
+        application.setProject(project);
+        application.setDeveloper(developer);
+        application.setWorkDuration(request.getWorkDuration());
+        application.setBidAmount(request.getBidAmount());
+        application.setProposalContent(request.getProposalContent());
+        application.setTechCategory(request.getTechCategory());
+        application.setExperienceLevel(request.getExperienceLevel());
+        application.setHeadcount(request.getHeadcount());
+        Application saved = applicationRepository.save(application);
+
         return ApplicationDto.ApplyResponse.builder()
                 .message("지원이 완료되었습니다.")
-                .applicationId(42L)
+                .applicationId(saved.getId())
                 .build();
     }
 
     public List<ApplicationDto.MyApplicationItem> getMyApplications() {
 
-        return  List.of(
-                ApplicationDto.MyApplicationItem.builder()
-                        .applicationId(42L).projectId(1L)
-                        .projectTitle("쇼핑몰 백엔드 API 개발")
+        List<Application> applications = applicationRepository.findByDeveloperId(1L);
+
+        return applications.stream()
+                .map(app -> ApplicationDto.MyApplicationItem.builder()
+                        .applicationId(app.getId())
+                        .projectId(app.getProject().getId())
+                        .projectTitle(app.getProject().getTitle())
                         .status("검토중")
-                        .appliedAt(LocalDateTime.of(2026, 5, 10, 14, 30))
-                        .bidAmount(250).build(),
-
-                ApplicationDto.MyApplicationItem.builder()
-                        .applicationId(38L).projectId(4L)
-                        .projectTitle("AWS 기반 인프라 CI/CD 파이프라인 구축")
-                        .status("합격")
-                        .appliedAt(LocalDateTime.of(2026, 5, 5, 10, 0))
-                        .bidAmount(200).build(),
-
-                ApplicationDto.MyApplicationItem.builder()
-                        .applicationId(35L).projectId(3L)
-                        .projectTitle("공공데이터 수집 배치 시스템 개발")
-                        .status("불합격")
-                        .appliedAt(LocalDateTime.of(2026, 4, 28, 16, 45))
-                        .bidAmount(180).build()
-        );
+                        .appliedAt(app.getAppliedAt())
+                        .bidAmount(app.getBidAmount())
+                        .build())
+                .collect(Collectors.toList());
     }
 
     public ApplicationDto.ApplicationDetail getApplicationDetail(Long applicationId) {
 
+        Application app = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new RuntimeException("지원서를 찾을 수 없습니다."));
+
+
         return ApplicationDto.ApplicationDetail.builder()
-                .applicationId(applicationId)
-                .projectId(1L)
-                .projectTitle("쇼핑몰 백엔드 API 개발")
-                .developerName("이자바")
-                .workDuration(60)
-                .bidAmount(250)
-                .proposalContent("해당 프로젝트 경험 다수 보유, 빠른 납기 가능합니다. " +
-                        "연락은 플랫폼 메시지로 부탁드립니다. (이메일 노출 필터링됨)")
-                .techCategory("백엔드")
-                .experienceLevel("중급")
-                .headcount(1)
-                .appliedAt(LocalDateTime.of(2026, 5, 10, 14, 30))
+                .applicationId(app.getId())
+                .projectId(app.getProject().getId())
+                .projectTitle(app.getProject().getTitle())
+                .developerName(app.getDeveloper().getName())
+                .workDuration(app.getWorkDuration())
+                .bidAmount(app.getBidAmount())
+                .proposalContent(app.getProposalContent())
+                .techCategory(app.getTechCategory())
+                .experienceLevel(app.getExperienceLevel())
+                .headcount(app.getHeadcount())
+                .appliedAt(app.getAppliedAt())
                 .build();
     }
 }

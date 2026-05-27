@@ -1,49 +1,78 @@
 package com.example.springstudy.service;
 
+import com.example.springstudy.domain.Member;
 import com.example.springstudy.dto.MemberDto;
+import com.example.springstudy.repository.ApplicationRepository;
+import com.example.springstudy.repository.MemberRepository;
+import com.example.springstudy.repository.ProjectRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class MemberService {
 
+    private final MemberRepository memberRepository;
+
+    public List<Member> getMember(){
+        return memberRepository.findAll();
+    }
+
     public MemberDto.ProfileResponse getProfile(){
-        return  MemberDto.ProfileResponse.builder()
-                .id(1L)
-                .name("김개발")
-                .profileImage("/images/profile/dev01.png")
-                .supportFields("백엔드, 풀스택")
-                .searchTags("Java,Spring,JPA,MySQL,Docker")
-                .introduction("5년차 백엔드 개발자입니다. Spring Boot와 클라우드 환경에 강점이 있으며, " +
-                        "대용량 트래픽 처리 경험이 있습니다.")
-                .isAvailable(true)
-                .isOnsiteAvailable(false)
-                .regionMain("서울")
-                .regionSub("강남구")
-                .businessType("프리랜서")
-                .careerYear("5년")
-                .build();
-    }
+       Member member = memberRepository.findById(1L)
+               .orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
 
-    public MemberDto.ProfileResponse updateProfile(){
         return MemberDto.ProfileResponse.builder()
-                .id(1L)
-                .name("김개발")
-                .profileImage("/images/profile/dev01.png")
-                .supportFields("백엔드, 풀스택")
-                .searchTags("Java,Spring,JPA,MySQL,Docker")
-                .introduction("프로필이 수정되었습니다.")
-                .isAvailable(true)
-                .isOnsiteAvailable(false)
-                .regionMain("서울")
-                .regionSub("강남구")
-                .businessType("프리랜서")
-                .careerYear("5년")
+                .id(member.getId())
+                .name(member.getName())
+                .supportFields(member.getSupportFields())
+                .searchTags(member.getSearchTags())
+                .introduction(member.getIntroduction())
+                .isAvailable(member.getIsAvailable())
+                .isOnsiteAvailable(member.getIsOnsiteAvailable())
+                .regionMain(member.getRegionMain())
+                .regionSub(member.getRegionSub())
+                .businessType(member.getBusinessType())
+                .careerYear(member.getCareerYear())
                 .build();
     }
 
-    public MemberDto.ImageUploadResponse uploadImage(MultipartFile image) {
+    public MemberDto.ProfileResponse updateProfile(MemberDto.ProfileUpdateRequest request){
+
+        Member member = memberRepository.findById(1L)
+                .orElseThrow(() -> new RuntimeException("회원을 찾을수 없습니다"));
+
+        member.setSupportFields(request.getSupportFields());
+        member.setSearchTags(request.getSearchTags());
+        member.setIntroduction(request.getIntroduction());
+        member.setIsAvailable(request.getIsAvailable());
+        member.setIsOnsiteAvailable(request.getIsOnsiteAvailable());
+        member.setRegionMain(request.getRegionMain());
+        member.setRegionSub(request.getRegionSub());
+        member.setBusinessType(request.getBusinessType());
+        member.setCareerYear(request.getCareerYear());
+
+        memberRepository.save(member);
+
+        return MemberDto.ProfileResponse.builder()
+                .id(member.getId())
+                .name(member.getName())
+                .profileImage(member.getProfileImage())
+                .supportFields(member.getSupportFields())
+                .searchTags(member.getSearchTags())
+                .introduction(member.getIntroduction())
+                .isAvailable(member.getIsAvailable())
+                .isOnsiteAvailable(member.getIsOnsiteAvailable())
+                .regionMain(member.getRegionMain())
+                .regionSub(member.getRegionSub())
+                .businessType(member.getBusinessType())
+                .careerYear(member.getCareerYear())
+                .build();
+    }
+
+    public MemberDto.ImageUploadResponse uploadImage() {
         return MemberDto.ImageUploadResponse.builder()
                 .profileImage("/images/profile/dev01_new.png")
                 .build();

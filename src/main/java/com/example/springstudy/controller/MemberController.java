@@ -32,8 +32,7 @@ public class MemberController {
     public ResponseEntity<CommonResponse<MemberDto.ProfileResponse>> updateProfile(
             @RequestBody MemberDto.ProfileUpdateRequest request) {
 
-        // 수정된 것처럼 동일한 더미 반환 (실제 request 값 반영 X)
-        MemberDto.ProfileResponse response = memberService.updateProfile();
+        MemberDto.ProfileResponse response = memberService.updateProfile(request);
 
         return ResponseEntity.ok(CommonResponse.ok(response));
     }
@@ -43,7 +42,7 @@ public class MemberController {
     public ResponseEntity<CommonResponse<MemberDto.ImageUploadResponse>> uploadImage(
             @RequestPart("image") MultipartFile image) {
 
-        MemberDto.ImageUploadResponse response = memberService.uploadImage(image);
+        MemberDto.ImageUploadResponse response = memberService.uploadImage();
 
         return ResponseEntity.ok(CommonResponse.ok(response));
     }
