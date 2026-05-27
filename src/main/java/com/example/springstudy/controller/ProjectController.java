@@ -7,6 +7,7 @@ import com.example.springstudy.service.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -27,51 +28,83 @@ public class ProjectController {
 
     @Operation(summary = "프로젝트 등록 (의뢰인)")
     @PostMapping
-    public ResponseEntity<CommonResponse<ProjectDto.ProjectCreateResponse>> createProject(
-            @RequestBody ProjectDto.ProjectCreateRequest request) {
+    public ResponseEntity<?> createProject(
+            @RequestBody ProjectDto.ProjectCreateRequest request, HttpSession session) {
 
-        ProjectDto.ProjectCreateResponse response = projectService.createProject(request);
+        Long memberId = (Long) session.getAttribute("loginMemberId");
+        String role = (String) session.getAttribute("loginMemberRole");
+
+        
+        if(role == null || !role.equals("CLIENT")){
+            return ResponseEntity.status(403).body(new CommonResponse<>(false, "권한이 없습니다."));
+        }
+
+        ProjectDto.ProjectCreateResponse response = projectService.createProject(request, memberId);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(CommonResponse.ok(response));
     }
 
     @Operation(summary = "프로젝트 검색 목록 조회", description = "페이지당 4개씩 반환합니다.")
     @GetMapping
-    public ResponseEntity<CommonResponse<ProjectDto.PageResponse<ProjectDto.ProjectSummary>>> getProjects(
+    public ResponseEntity<?> getProjects(
             @Parameter(description = "검색 키워드") @RequestParam(required = false) String keyword,
-            @PageableDefault(size = 4, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+            @PageableDefault(size = 4, sort = "id", direction = Sort.Direction.DESC) Pageable pageable, HttpSession session) {
 
-        ProjectDto.PageResponse<ProjectDto.ProjectSummary> response = projectService.getProjects(keyword, pageable);
+        Long memberId = (Long) session.getAttribute("loginMemberId");
+        if (memberId == null) {
+            return ResponseEntity.status(401).body(new CommonResponse<>(false, "로그인이 필요합니다."));
+        }
+
+        ProjectDto.PageResponse<ProjectDto.ProjectSummary> response = projectService.getProjects(keyword, pageable, memberId);
 
         return ResponseEntity.ok(CommonResponse.ok(response));
     }
 
     @Operation(summary = "프로젝트 상세 조회")
     @GetMapping("/{id}")
-    public ResponseEntity<CommonResponse<ProjectDto.ProjectDetail>> getProjectDetail(
-            @PathVariable Long id) {
+    public ResponseEntity<?> getProjectDetail(
+            @PathVariable Long id, HttpSession session) {
 
-        ProjectDto.ProjectDetail response = projectService.getProjectDetail(id);
+        Long memberId = (Long) session.getAttribute("loginMemberId");
+        if (memberId == null) {
+            return ResponseEntity.status(401).body(new CommonResponse<>(false, "로그인이 필요합니다."));
+        }
+
+        ProjectDto.ProjectDetail response = projectService.getProjectDetail(id, memberId);
 
         return ResponseEntity.ok(CommonResponse.ok(response));
     }
 
     @Operation(summary = "프로젝트 지원자 목록 조회 (의뢰인용)", description = "페이지당 2개씩 반환합니다.")
     @GetMapping("/{id}/applicants")
-    public ResponseEntity<CommonResponse<ProjectDto.PageResponse<ApplicationDto.ApplicantItem>>> getApplicants(
+    public ResponseEntity<?> getApplicants(
             @PathVariable Long id,
-            @PageableDefault(size = 2, sort = "appliedAt", direction = Sort.Direction.DESC) Pageable pageable) {
+            @PageableDefault(size = 2, sort = "appliedAt", direction = Sort.Direction.DESC) Pageable pageable, HttpSession session) {
 
-        ProjectDto.PageResponse<ApplicationDto.ApplicantItem> response = projectService.getApplicants(id, pageable);
+        Long memberId = (Long) session.getAttribute("loginMemberId");
+        String role = (String) session.getAttribute("loginMemberRole");
+
+        if(role == null || !role.equals("CLIENT")){
+            return ResponseEntity.status(403).body(new CommonResponse<>(false, "권한이 없습니다."));
+        }
+
+        ProjectDto.PageResponse<ApplicationDto.ApplicantItem> response = projectService.getApplicants(id, pageable, memberId);
 
         return ResponseEntity.ok(CommonResponse.ok(response));
     }
 
     @Operation(summary = "내가 의뢰한 프로젝트 목록 (의뢰인 마이페이지)")
     @GetMapping("/client/my")
-    public ResponseEntity<CommonResponse<List<ProjectDto.ProjectSummary>>> getMyClientProjects() {
+    public ResponseEntity<?> getMyClientProjects(HttpSession session) {
 
-        List<ProjectDto.ProjectSummary> response = projectService.getMyClientProjects();
+        Long memberId = (Long) session.getAttribute("loginMemberId");
+        String role = (String) session.getAttribute("loginMemberRole");
+
+        if(role == null || !role.equals("CLIENT")){
+            return ResponseEntity.status(403).body(new CommonResponse<>(false, "권한이 없습니다."));
+        }
+
+        List<ProjectDto.ProjectSummary> response = projectService.getMyClientProjects(memberId);
 
         return ResponseEntity.ok(CommonResponse.ok(response));
     }

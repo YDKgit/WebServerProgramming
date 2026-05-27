@@ -2,12 +2,16 @@ package com.example.springstudy.service;
 
 import com.example.springstudy.domain.Member;
 import com.example.springstudy.dto.MemberDto;
-import com.example.springstudy.repository.ApplicationRepository;
 import com.example.springstudy.repository.MemberRepository;
-import com.example.springstudy.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 @Service
@@ -20,8 +24,8 @@ public class MemberService {
         return memberRepository.findAll();
     }
 
-    public MemberDto.ProfileResponse getProfile(){
-       Member member = memberRepository.findById(1L)
+    public MemberDto.ProfileResponse getProfile(Long memberId){
+       Member member = memberRepository.findById(memberId)
                .orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
 
         return MemberDto.ProfileResponse.builder()
@@ -39,9 +43,9 @@ public class MemberService {
                 .build();
     }
 
-    public MemberDto.ProfileResponse updateProfile(MemberDto.ProfileUpdateRequest request){
+    public MemberDto.ProfileResponse updateProfile(MemberDto.ProfileUpdateRequest request, Long memberId){
 
-        Member member = memberRepository.findById(1L)
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new RuntimeException("회원을 찾을수 없습니다"));
 
         member.setSupportFields(request.getSupportFields());
@@ -72,10 +76,29 @@ public class MemberService {
                 .build();
     }
 
-    public MemberDto.ImageUploadResponse uploadImage() {
-        return MemberDto.ImageUploadResponse.builder()
-                .profileImage("/images/profile/dev01_new.png")
-                .build();
+    public MemberDto.ImageUploadResponse uploadImage(MultipartFile image, Long memberId) {
+        try {
+            String uploadDir = "src/main/resources/static/images/profile/";
+            Files.createDirectories(Paths.get(uploadDir));
+
+            String fileName = memberId + "_" + image.getOriginalFilename();
+            Path savePath = Paths.get(uploadDir + fileName);
+            Files.copy(image.getInputStream(), savePath, StandardCopyOption.REPLACE_EXISTING);
+
+            String imagePath = "/images/profile/" + fileName;
+
+            Member member = memberRepository.findById(memberId)
+                    .orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+            member.setProfileImage(imagePath);
+            memberRepository.save(member);
+
+            return MemberDto.ImageUploadResponse.builder()
+                    .profileImage(imagePath)
+                    .build();
+
+        } catch (IOException e) {
+            throw new RuntimeException("이미지 저장 중 오류가 발생했습니다.");
+        }
     }
 
 }

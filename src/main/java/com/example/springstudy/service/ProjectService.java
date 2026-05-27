@@ -26,9 +26,13 @@ public class ProjectService {
         return projectRepository.findAll();
     }
 
-    public ProjectDto.ProjectCreateResponse createProject(ProjectDto.ProjectCreateRequest request) {
+    public ProjectDto.ProjectCreateResponse createProject(ProjectDto.ProjectCreateRequest request, Long memberId) {
+
+        com.example.springstudy.domain.Member client = memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
 
         Project project = new Project();
+        project.setClient(client);
         project.setTitle(request.getTitle());
         project.setDeadline(request.getDeadline());
         project.setEmploymentType(request.getEmploymentType());
@@ -46,7 +50,7 @@ public class ProjectService {
                 .build();
     }
 
-    public ProjectDto.PageResponse<ProjectDto.ProjectSummary> getProjects(String keyword, Pageable pageable) {
+    public ProjectDto.PageResponse<ProjectDto.ProjectSummary> getProjects(String keyword, Pageable pageable, Long memberId) {
 
         Page<Project> projectPage = projectRepository.findAll(pageable);
 
@@ -75,7 +79,7 @@ public class ProjectService {
                 .build();
     }
 
-    public ProjectDto.ProjectDetail getProjectDetail(Long id) {
+    public ProjectDto.ProjectDetail getProjectDetail(Long id,Long memberId) {
 
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("프로젝트를 찾을 수 없습니다."));
@@ -96,7 +100,7 @@ public class ProjectService {
                 .build();
     }
 
-    public ProjectDto.PageResponse<ApplicationDto.ApplicantItem> getApplicants(Long id, Pageable pageable) {
+    public ProjectDto.PageResponse<ApplicationDto.ApplicantItem> getApplicants(Long id, Pageable pageable, Long memberId) {
 
         Page<com.example.springstudy.domain.Application> appPage = applicationRepository.findByProjectId(id, pageable);
 
@@ -125,9 +129,9 @@ public class ProjectService {
                 .build();
     }
 
-    public List<ProjectDto.ProjectSummary> getMyClientProjects() {
-        // 세션 붙이면 실제 로그인 클라이언트 ID로 교체
-        List<Project> projects = projectRepository.findByClientId(4L);
+    public List<ProjectDto.ProjectSummary> getMyClientProjects(Long memberId) {
+
+        List<Project> projects = projectRepository.findByClientId(memberId);
 
         return projects.stream()
                 .map(project -> ProjectDto.ProjectSummary.builder()

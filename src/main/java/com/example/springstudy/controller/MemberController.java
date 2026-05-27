@@ -5,6 +5,7 @@ import com.example.springstudy.dto.MemberDto;
 import com.example.springstudy.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,19 +21,21 @@ public class MemberController {
 
     @Operation(summary = "내 프로필 조회")
     @GetMapping("/profile")
-    public ResponseEntity<CommonResponse<MemberDto.ProfileResponse>> getProfile() {
+    public ResponseEntity<CommonResponse<MemberDto.ProfileResponse>> getProfile(HttpSession session) {
 
-        MemberDto.ProfileResponse response = memberService.getProfile();
+        Long memberId = (Long) session.getAttribute("loginMemberId");
 
+        MemberDto.ProfileResponse response = memberService.getProfile(memberId);
         return ResponseEntity.ok(CommonResponse.ok(response));
     }
 
     @Operation(summary = "내 프로필 수정")
     @PutMapping("/profile")
     public ResponseEntity<CommonResponse<MemberDto.ProfileResponse>> updateProfile(
-            @RequestBody MemberDto.ProfileUpdateRequest request) {
+            @RequestBody MemberDto.ProfileUpdateRequest request, HttpSession session) {
 
-        MemberDto.ProfileResponse response = memberService.updateProfile(request);
+        Long memberId = (Long) session.getAttribute("loginMemberId");
+        MemberDto.ProfileResponse response = memberService.updateProfile(request, memberId);
 
         return ResponseEntity.ok(CommonResponse.ok(response));
     }
@@ -40,9 +43,10 @@ public class MemberController {
     @Operation(summary = "프로필 이미지 업로드")
     @PostMapping(value = "/profile/image", consumes = "multipart/form-data")
     public ResponseEntity<CommonResponse<MemberDto.ImageUploadResponse>> uploadImage(
-            @RequestPart("image") MultipartFile image) {
+            @RequestPart("image") MultipartFile image, HttpSession session) {
 
-        MemberDto.ImageUploadResponse response = memberService.uploadImage();
+        Long memberId = (Long) session.getAttribute("loginMemberId");
+        MemberDto.ImageUploadResponse response = memberService.uploadImage(image, memberId);
 
         return ResponseEntity.ok(CommonResponse.ok(response));
     }

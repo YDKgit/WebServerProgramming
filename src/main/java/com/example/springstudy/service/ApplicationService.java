@@ -8,6 +8,7 @@ import com.example.springstudy.dto.ApplicationDto;
 import com.example.springstudy.repository.ApplicationRepository;
 import com.example.springstudy.repository.MemberRepository;
 import com.example.springstudy.repository.ProjectRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,12 +27,12 @@ public class ApplicationService {
         return applicationRepository.findAll();
     }
 
-    public ApplicationDto.ApplyResponse apply(ApplicationDto.ApplyRequest request) {
+    public ApplicationDto.ApplyResponse apply(ApplicationDto.ApplyRequest request, Long memberId) {
 
         Project project = projectRepository.findById(request.getProjectId())
                 .orElseThrow(() -> new RuntimeException("프로젝트를 찾을 수 없습니다."));
 
-        Member developer = memberRepository.findById(1L)
+        Member developer = memberRepository.findById(memberId)
                 .orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
 
         Application application = new Application();
@@ -51,9 +52,9 @@ public class ApplicationService {
                 .build();
     }
 
-    public List<ApplicationDto.MyApplicationItem> getMyApplications() {
+    public List<ApplicationDto.MyApplicationItem> getMyApplications(Long memberId) {
 
-        List<Application> applications = applicationRepository.findByDeveloperId(1L);
+        List<Application> applications = applicationRepository.findByDeveloperId(memberId);
 
         return applications.stream()
                 .map(app -> ApplicationDto.MyApplicationItem.builder()
@@ -67,7 +68,7 @@ public class ApplicationService {
                 .collect(Collectors.toList());
     }
 
-    public ApplicationDto.ApplicationDetail getApplicationDetail(Long applicationId) {
+    public ApplicationDto.ApplicationDetail getApplicationDetail(Long applicationId, Long memberId) {
 
         Application app = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new RuntimeException("지원서를 찾을 수 없습니다."));
