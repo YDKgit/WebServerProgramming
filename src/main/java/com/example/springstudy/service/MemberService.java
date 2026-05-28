@@ -48,6 +48,14 @@ public class MemberService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new RuntimeException("회원을 찾을수 없습니다"));
 
+        // 검색태그 5개 초과 시 예외 처리
+        if (request.getSearchTags() != null) {
+            String[] tags = request.getSearchTags().split(",");
+            if (tags.length > 5) {
+                throw new RuntimeException("검색 태그는 최대 5개까지만 등록할 수 있습니다.");
+            }
+        }
+
         member.setSupportFields(request.getSupportFields());
         member.setSearchTags(request.getSearchTags());
         member.setIntroduction(request.getIntroduction());
