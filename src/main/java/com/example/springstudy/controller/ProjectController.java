@@ -48,6 +48,7 @@ public class ProjectController {
     @GetMapping
     public ResponseEntity<?> getProjects(
             @Parameter(description = "검색 키워드") @RequestParam(required = false) String keyword,
+            @Parameter(description = "고용형태 필터 (도급 또는 상주)") @RequestParam(required = false) String employmentType,
             @PageableDefault(size = 4, sort = "id", direction = Sort.Direction.DESC) Pageable pageable, HttpSession session) {
 
         Long memberId = (Long) session.getAttribute("loginMemberId");
@@ -55,7 +56,7 @@ public class ProjectController {
             return ResponseEntity.status(401).body(new CommonResponse<>(false, "로그인이 필요합니다."));
         }
 
-        ProjectDto.PageResponse<ProjectDto.ProjectSummary> response = projectService.getProjects(keyword, pageable, memberId);
+        ProjectDto.PageResponse<ProjectDto.ProjectSummary> response = projectService.getProjects(keyword, employmentType, pageable, memberId);
 
         return ResponseEntity.ok(CommonResponse.ok(response));
     }

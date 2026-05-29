@@ -50,9 +50,26 @@ public class ProjectService {
                 .build();
     }
 
-    public ProjectDto.PageResponse<ProjectDto.ProjectSummary> getProjects(String keyword, Pageable pageable, Long memberId) {
+    public ProjectDto.PageResponse<ProjectDto.ProjectSummary> getProjects(String keyword, String employmentType, Pageable pageable, Long memberId) {
 
-        Page<Project> projectPage = projectRepository.findAll(pageable);
+        // keyword, employmentType 조합에 따라 다른 쿼리 실행
+        Page<Project> projectPage;
+        boolean hasKeyword = keyword != null && !keyword.isBlank();
+        boolean hasType = employmentType != null && !employmentType.isBlank();
+
+        if (hasKeyword && hasType) {
+            // 키워드 + 고용형태 둘 다 있을 때
+            projectPage = projectRepository.findByEmploymentTypeAndTitleContainingIgnoreCase(employmentType, keyword, pageable);
+        } else if (hasKeyword) {
+            // 키워드만 있을 때
+            projectPage = projectRepository.findByTitleContainingIgnoreCase(keyword, pageable);
+        } else if (hasType) {
+            // 고용형태만 있을 때
+            projectPage = projectRepository.findByEmploymentType(employmentType, pageable);
+        } else {
+            // 필터 없을 때 전체 조회
+            projectPage = projectRepository.findAll(pageable);
+        }
 
         List<ProjectDto.ProjectSummary> content = projectPage.getContent().stream()
                 .map(project -> ProjectDto.ProjectSummary.builder()
