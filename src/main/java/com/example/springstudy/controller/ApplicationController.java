@@ -66,9 +66,10 @@ public class ApplicationController {
         Long memberId = (Long) session.getAttribute("loginMemberId");
         String role = (String) session.getAttribute("loginMemberRole");
 
-        if(role == null || !role.equals("DEVELOPER")){
-            return ResponseEntity.status(403).body(new CommonResponse<>(false, "권한이 없습니다."));
+        if(memberId == null){
+            return ResponseEntity.status(401).body(new CommonResponse<>(false, "로그인이 필요합니다."));
         }
+
 
         ApplicationDto.ApplicationDetail response = applicationService.getApplicationDetail(applicationId, memberId);
 
