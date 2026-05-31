@@ -31,6 +31,7 @@ public class MemberService {
         return MemberDto.ProfileResponse.builder()
                 .id(member.getId())
                 .name(member.getName())
+                .profileImage(member.getProfileImage())
                 .supportFields(member.getSupportFields())
                 .searchTags(member.getSearchTags())
                 .introduction(member.getIntroduction())
