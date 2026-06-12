@@ -34,6 +34,8 @@ public class ProjectDto {
         private Integer estimatedDuration;
         @Schema(description = "현재 지원자 수", example = "7")
         private Integer applicantCount;
+        @Schema(description = "프로젝트 작성자 ID", example = "4")
+        private Long clientId;
     }
     @Getter
     @Builder
@@ -66,6 +68,8 @@ public class ProjectDto {
         private String clientName;
         @Schema(description = "현재 지원자 수", example = "7")
         private Integer applicantCount;
+        @Schema(description = "프로젝트 작성자 ID", example = "4")
+        private Long clientId;
     }
     @Getter
     @Schema(description = "프로젝트 등록 요청")
@@ -87,6 +91,19 @@ public class ProjectDto {
         @Schema(description = "근무 방식", example = "원격")
         private String workType;
         @Schema(description = "시작 예정일", example = "2026-07-10")
+        private LocalDate startDate;
+    }
+    @Getter
+    @Schema(description = "프로젝트 수정 요청")
+    public static class ProjectUpdateRequest {
+        private String title;
+        private LocalDate deadline;
+        private String employmentType;
+        private Integer budget;
+        private String workContent;
+        private String requiredSkills;
+        private Integer estimatedDuration;
+        private String workType;
         private LocalDate startDate;
     }
     @Getter

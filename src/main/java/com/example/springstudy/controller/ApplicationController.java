@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Tag(name = "Application", description = "프로젝트 지원 API")
@@ -31,8 +30,11 @@ public class ApplicationController {
         Long memberId = (Long) session.getAttribute("loginMemberId");
         String role = (String) session.getAttribute("loginMemberRole");
 
-        if(role == null || !role.equals("DEVELOPER")){
-            return ResponseEntity.status(403).body(new CommonResponse<>(false, "권한이 없습니다."));
+        if (memberId == null) {
+            return ResponseEntity.status(401).body(new CommonResponse<>(false, "로그인이 필요합니다."));
+        }
+        if (!"DEVELOPER".equals(role)) {
+            return ResponseEntity.status(403).body(new CommonResponse<>(false, "개발자만 프로젝트에 지원할 수 있습니다."));
         }
 
         ApplicationDto.ApplyResponse response = applicationService.apply(request, memberId);
@@ -76,4 +78,24 @@ public class ApplicationController {
         return ResponseEntity.ok(CommonResponse.ok(response));
     }
 
+    @Operation(summary = "지원자 수락")
+    @PatchMapping("/{applicationId}/accept")
+    public ResponseEntity<?> acceptApplication(
+            @PathVariable Long applicationId,
+            HttpSession session
+    ) {
+        Long memberId = (Long) session.getAttribute("loginMemberId");
+        String role = (String) session.getAttribute("loginMemberRole");
+
+        if (memberId == null) {
+            return ResponseEntity.status(401).body(new CommonResponse<>(false, "로그인이 필요합니다."));
+        }
+        if (!"CLIENT".equals(role)) {
+            return ResponseEntity.status(403).body(new CommonResponse<>(false, "의뢰인만 지원자를 수락할 수 있습니다."));
+        }
+
+        ApplicationDto.ApplicationDetail response =
+                applicationService.acceptApplication(applicationId, memberId);
+        return ResponseEntity.ok(CommonResponse.ok(response));
+    }
 }

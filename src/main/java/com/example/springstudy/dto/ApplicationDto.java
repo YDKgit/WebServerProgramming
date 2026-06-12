@@ -81,6 +81,8 @@ public class ApplicationDto {
         private String proposalSummary;
         @Schema(description = "지원 일시", example = "2026-05-12T09:00:00")
         private LocalDateTime appliedAt;
+        @Schema(description = "지원 상태", example = "PENDING")
+        private String status;
     }
 
     @Getter
@@ -110,5 +112,7 @@ public class ApplicationDto {
         private Integer headcount;
         @Schema(description = "지원 일시", example = "2026-05-10T14:30:00")
         private LocalDateTime appliedAt;
+        @Schema(description = "지원 상태", example = "PENDING")
+        private String status;
     }
 }

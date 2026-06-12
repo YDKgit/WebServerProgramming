@@ -10,6 +10,12 @@ import jakarta.persistence.Id;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_application_project_developer",
+                columnNames = {"project_id", "developer_id"}
+        )
+)
 @Getter @Setter
 @NoArgsConstructor
 public class Application {
@@ -39,6 +45,9 @@ public class Application {
 
     // ======= 지원한 프로젝트 보기 (기능 5) =======
     private LocalDateTime appliedAt = LocalDateTime.now(); // 지원일자
+
+    @Enumerated(EnumType.STRING)
+    private ApplicationStatus status = ApplicationStatus.PENDING;
 
     // ======= 의뢰한 프로젝트 관리 (지원자 리스트) =======
     // 이 엔티티 자체가 의뢰인 마이페이지에서 '더보기'로 보여줄 지원자 정보가 됩니다.

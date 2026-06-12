@@ -7,9 +7,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 @Tag(name = "Member", description = "개발자 프로필 API")
 @RestController
@@ -22,9 +24,7 @@ public class MemberController {
     @Operation(summary = "내 프로필 조회")
     @GetMapping("/profile")
     public ResponseEntity<CommonResponse<MemberDto.ProfileResponse>> getProfile(HttpSession session) {
-
-        Long memberId = (Long) session.getAttribute("loginMemberId");
-
+        Long memberId = getLoginMemberId(session);
         MemberDto.ProfileResponse response = memberService.getProfile(memberId);
         return ResponseEntity.ok(CommonResponse.ok(response));
     }
@@ -34,7 +34,7 @@ public class MemberController {
     public ResponseEntity<CommonResponse<MemberDto.ProfileResponse>> updateProfile(
             @RequestBody MemberDto.ProfileUpdateRequest request, HttpSession session) {
 
-        Long memberId = (Long) session.getAttribute("loginMemberId");
+        Long memberId = getLoginMemberId(session);
         MemberDto.ProfileResponse response = memberService.updateProfile(request, memberId);
 
         return ResponseEntity.ok(CommonResponse.ok(response));
@@ -45,9 +45,17 @@ public class MemberController {
     public ResponseEntity<CommonResponse<MemberDto.ImageUploadResponse>> uploadImage(
             @RequestPart("image") MultipartFile image, HttpSession session) {
 
-        Long memberId = (Long) session.getAttribute("loginMemberId");
+        Long memberId = getLoginMemberId(session);
         MemberDto.ImageUploadResponse response = memberService.uploadImage(image, memberId);
 
         return ResponseEntity.ok(CommonResponse.ok(response));
+    }
+
+    private Long getLoginMemberId(HttpSession session) {
+        Long memberId = (Long) session.getAttribute("loginMemberId");
+        if (memberId == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
+        }
+        return memberId;
     }
 }

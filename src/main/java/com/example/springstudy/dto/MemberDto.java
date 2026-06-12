@@ -16,7 +16,7 @@ public class MemberDto {
         private Long id;
         @Schema(description = "이름", example = "김개발")
         private String name;
-        @Schema(description = "프로필 이미지 경로", example = "/images/profile/dev01.png")
+        @Schema(description = "프로필 이미지 경로", example = "/uploads/profile/6a35c0b0-2ce0-4be1-9739-7f04dd667f2d.png")
         private String profileImage;
         @Schema(description = "지원 분야", example = "백엔드, 풀스택")
         private String supportFields;
@@ -57,7 +57,7 @@ public class MemberDto {
     @AllArgsConstructor
     @Schema(description = "이미지 업로드 응답")
     public static class ImageUploadResponse {
-        @Schema(description = "업로드된 이미지 경로", example = "/images/profile/dev01_new.png")
+        @Schema(description = "업로드된 이미지 경로", example = "/uploads/profile/6a35c0b0-2ce0-4be1-9739-7f04dd667f2d.png")
         private String profileImage;
     }
 }
