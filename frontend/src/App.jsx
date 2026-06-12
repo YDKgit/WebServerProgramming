@@ -9,6 +9,7 @@ import ClientProjectFormPage from './components/clientMyPage/ClientProjectFormPa
 import ClientMyPage from './components/clientMyPage/ClientMyPage.jsx';
 import ClientProjectDetailPage from './components/clientMyPage/ClientProjectDetailPage.jsx';
 import { RequireAuth, RequireRole } from './components/auth/RouteGuard.jsx';
+import PartnersPage from './components/partners/PartnersPage.jsx';
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
         <Route element={<Layout />}>
           <Route path="/" element={<Navigate to="/projects" replace />} />
           <Route path="/projects" element={<ProjectListPage />} />
+          <Route path="/partners" element={<PartnersPage />} />
           <Route path="/projects/:projectId" element={<ProjectDetailPage />} />
           <Route
             path="/projects/:projectId/apply"

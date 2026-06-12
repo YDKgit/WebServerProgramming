@@ -1,4 +1,5 @@
 import { mockApi } from './mockApi';
+import { getMockPartners } from './partnersMock';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
 const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
@@ -71,13 +72,26 @@ export const authApi = {
 };
 
 export const projectApi = {
-  getProjects({ type, employmentType, status, sort, page, size }) {
+  getProjects({
+    keyword,
+    type,
+    employmentType,
+    participation,
+    region,
+    status,
+    sort,
+    page,
+    size,
+  }) {
     return request(`/projects${toQueryString({
       page,
       size,
       sort,
+      keyword,
       type,
       employmentType,
+      participation,
+      region,
       status,
     })}`);
   },
@@ -163,5 +177,11 @@ export const applicationApi = {
     return request(`/applications/${applicationId}/accept`, {
       method: 'PATCH',
     });
+  },
+};
+
+export const partnersApi = {
+  getPartners(params = {}) {
+    return getMockPartners(params);
   },
 };

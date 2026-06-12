@@ -33,7 +33,8 @@ export default function Layout() {
 
           <nav className="main-nav" aria-label="주요 메뉴">
             <NavLink to="/projects">프로젝트</NavLink>
-            {isDeveloper && <NavLink to="/developer/mypage">파트너스</NavLink>}
+            <NavLink to="/partners">파트너스</NavLink>
+            {isDeveloper && <NavLink to="/developer/mypage">파트너 관리</NavLink>}
             {isClient && (
               <>
                 <NavLink

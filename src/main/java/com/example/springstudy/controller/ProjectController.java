@@ -52,6 +52,8 @@ public class ProjectController {
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String type,
             @RequestParam(required = false) String employmentType,
+            @RequestParam(required = false) String participation,
+            @RequestParam(required = false) String region,
             @RequestParam(defaultValue = "ALL") String status,
             @RequestParam(defaultValue = "latest") String sort,
             @RequestParam(defaultValue = "0") int page,
@@ -68,7 +70,15 @@ public class ProjectController {
         Pageable pageable = PageRequest.of(safePage, safeSize, projectService.toProjectSort(sort));
 
         ProjectDto.PageResponse<ProjectDto.ProjectSummary> response =
-                projectService.getProjects(keyword, type, employmentType, status, pageable);
+                projectService.getProjects(
+                        keyword,
+                        type,
+                        employmentType,
+                        participation,
+                        region,
+                        status,
+                        pageable
+                );
 
         return ResponseEntity.ok(CommonResponse.ok(response));
     }

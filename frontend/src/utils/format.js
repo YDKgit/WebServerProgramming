@@ -105,7 +105,7 @@ export function toProjectView(project = {}) {
     title: project.title || '',
     description: project.description || project.workContent || '',
     skills: splitCsv(project.skills || project.techStack || project.requiredSkills),
-    fields: splitCsv(project.fields || project.category),
+    fields: splitCsv(project.fields || project.participationFields || project.category),
     type: normalizedType,
     status,
     budget: project.budget,

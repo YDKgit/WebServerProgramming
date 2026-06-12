@@ -28,6 +28,12 @@ public class ProjectDto {
         private LocalDate deadline;
         @Schema(description = "카테고리", example = "백엔드")
         private String category;
+        @Schema(description = "참여파트", example = "기획,개발")
+        private String participationFields;
+        @Schema(description = "프로젝트 설명")
+        private String description;
+        @Schema(description = "미팅 지역", example = "서울")
+        private String meetingRegion;
         @Schema(description = "고용형태", example = "도급")
         private String employmentType;
         @Schema(description = "예상 기간(개월)", example = "3")
@@ -50,6 +56,8 @@ public class ProjectDto {
         private String workContent;
         @Schema(description = "필요 기술", example = "Java 17, Spring Boot 3.x, JPA, MySQL 8.0")
         private String requiredSkills;
+        @Schema(description = "참여파트", example = "기획,개발")
+        private String participationFields;
         @Schema(description = "예상 기간(개월)", example = "3")
         private Integer estimatedDuration;
         @Schema(description = "예산(만원)", example = "300")
@@ -86,6 +94,8 @@ public class ProjectDto {
         private String workContent;
         @Schema(description = "필요 기술", example = "Java 17, Spring Boot 3.x, JPA")
         private String requiredSkills;
+        @Schema(description = "참여파트", example = "기획,개발")
+        private String participationFields;
         @Schema(description = "예상 기간(개월)", example = "3")
         private Integer estimatedDuration;
         @Schema(description = "근무 방식", example = "원격")
@@ -102,6 +112,7 @@ public class ProjectDto {
         private Integer budget;
         private String workContent;
         private String requiredSkills;
+        private String participationFields;
         private Integer estimatedDuration;
         private String workType;
         private LocalDate startDate;

@@ -229,14 +229,36 @@ export async function mockApi(path, options = {}) {
 
   if (url.pathname === '/projects' && method === 'GET') {
     const type = url.searchParams.get('type') || 'web';
+    const keyword = (url.searchParams.get('keyword') || '').trim().toLowerCase();
+    const employmentType = url.searchParams.get('employmentType') || 'ALL';
+    const participation = (url.searchParams.get('participation') || '')
+      .split('|')
+      .map((value) => value.trim())
+      .filter(Boolean);
+    const region = url.searchParams.get('region') || 'ALL';
     const sort = url.searchParams.get('sort') || 'latest';
     const status = url.searchParams.get('status') || 'ALL';
     const page = Number(url.searchParams.get('page') || 0);
     const size = Number(url.searchParams.get('size') || 4);
     const typeFiltered = type === 'ALL' ? projects : projects.filter((project) => project.category === type);
-    const filtered = status === 'ALL'
-      ? typeFiltered
-      : typeFiltered.filter((project) => project.status === status);
+    const filtered = typeFiltered.filter((project) => {
+      if (status !== 'ALL' && project.status !== status) return false;
+      if (employmentType !== 'ALL' && project.type !== employmentType) return false;
+      if (region !== 'ALL' && !String(project.meetingRegion || '').includes(region)) return false;
+      if (participation.length) {
+        const projectCombination = (project.fields || []).join('+');
+        if (!participation.includes(projectCombination)) return false;
+      }
+      if (keyword) {
+        const searchable = [
+          project.title,
+          project.description,
+          ...(project.skills || []),
+        ].join(' ').toLowerCase();
+        if (!searchable.includes(keyword)) return false;
+      }
+      return true;
+    });
     return ok(pageResponse(sortProjects(filtered, sort), page, size));
   }
 

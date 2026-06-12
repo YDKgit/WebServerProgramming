@@ -25,6 +25,7 @@ public class Project {
     private String title;             // 프로젝트명
     private String workType;          // 프로젝트 형태 (도급/상주)
     private String projectFields;     // 참여파트 분류 (개발/디자인 등)
+    private String participationFields; // 기획/디자인/개발 조합
     private Integer budget;           // 예산/월급여
     private LocalDateTime createdAt = LocalDateTime.now(); // 정렬 기준용
 

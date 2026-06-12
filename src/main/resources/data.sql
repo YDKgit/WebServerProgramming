@@ -45,6 +45,11 @@ VALUES (4, '전자상거래 결제 모듈 개발', '원격', '도급', 'web', 28
 INSERT INTO project (client_id, title, work_type, employment_type, project_fields, budget, status, deadline, description, required_skills, estimated_days, kickoff_date, created_at, planning_status, meeting_region, progress_method)
 VALUES (5, 'ERP 시스템 커스터마이징', '상주', '상주', 'web', 600, 'RECRUITING', '2026-09-30', '기존 ERP 시스템에 맞춤 모듈을 추가 개발합니다.', 'Java, JSP, Oracle, jQuery', 120, '2026-10-01', '2026-05-10 09:00:00', '요구사항 정의 완료', '경기 수원', '상주');
 
+UPDATE project SET participation_fields = '기획,개발' WHERE id IN (1, 4, 9);
+UPDATE project SET participation_fields = '디자인,개발' WHERE id IN (2, 8);
+UPDATE project SET participation_fields = '개발' WHERE id IN (3, 6, 7, 10);
+UPDATE project SET participation_fields = '기획,디자인,개발' WHERE id = 5;
+
 -- Applications
 INSERT INTO application (project_id, developer_id, work_duration, bid_amount, proposal_content, tech_category, experience_level, headcount, applied_at, status)
 VALUES (1, 1, 60, 250, '쇼핑몰 유사 프로젝트 3건 완료 경험이 있어 빠른 납기가 가능합니다.', '백엔드', '중급', 1, '2026-05-10 14:30:00', 'PENDING');

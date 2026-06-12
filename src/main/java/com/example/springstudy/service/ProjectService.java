@@ -68,6 +68,7 @@ public class ProjectService {
         project.setWorkType(request.getWorkType());
         project.setKickoffDate(request.getStartDate() != null ? request.getStartDate().toString() : null);
         project.setProjectFields("web");
+        project.setParticipationFields(normalizeParticipationForSave(request.getParticipationFields()));
         project.setStatus(ProjectStatus.RECRUITING);
 
         Project saved = projectRepository.save(project);
@@ -82,6 +83,8 @@ public class ProjectService {
             String keyword,
             String type,
             String employmentType,
+            String participation,
+            String region,
             String status,
             Pageable pageable
     ) {
@@ -100,6 +103,12 @@ public class ProjectService {
         if (normalizedEmploymentType != null) {
             specification = specification.and((root, query, criteriaBuilder) ->
                     criteriaBuilder.equal(root.get("employmentType"), normalizedEmploymentType));
+        }
+        specification = specification.and(participationSpecification(participation));
+        if (region != null && !region.isBlank() && !"ALL".equalsIgnoreCase(region)) {
+            String regionKeyword = "%" + region.trim().toLowerCase(Locale.ROOT) + "%";
+            specification = specification.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("meetingRegion")), regionKeyword));
         }
         specification = specification.and(statusSpecification(status));
 
@@ -133,6 +142,7 @@ public class ProjectService {
                 .title(project.getTitle())
                 .workContent(project.getDescription())
                 .requiredSkills(project.getRequiredSkills())
+                .participationFields(project.getParticipationFields())
                 .estimatedDuration(project.getEstimatedDays())
                 .budget(project.getBudget())
                 .recruitStatus(effectiveStatus(project).name())
@@ -206,6 +216,9 @@ public class ProjectService {
         project.setBudget(request.getBudget());
         project.setDescription(request.getWorkContent());
         project.setRequiredSkills(request.getRequiredSkills());
+        if (request.getParticipationFields() != null && !request.getParticipationFields().isBlank()) {
+            project.setParticipationFields(normalizeParticipationForSave(request.getParticipationFields()));
+        }
         project.setEstimatedDays(request.getEstimatedDuration());
         project.setWorkType(request.getWorkType());
         project.setKickoffDate(request.getStartDate() != null ? request.getStartDate().toString() : null);
@@ -226,6 +239,9 @@ public class ProjectService {
                 .recruitStatus(effectiveStatus(project).name())
                 .deadline(project.getDeadline())
                 .category(project.getProjectFields())
+                .participationFields(project.getParticipationFields())
+                .description(project.getDescription())
+                .meetingRegion(project.getMeetingRegion())
                 .employmentType(project.getEmploymentType())
                 .estimatedDuration(project.getEstimatedDays())
                 .applicantCount(applicationRepository.countByProjectId(project.getId()))
@@ -281,6 +297,35 @@ public class ProjectService {
             return null;
         }
         return normalizeEmploymentType(employmentType);
+    }
+
+    private Specification<Project> participationSpecification(String participation) {
+        if (participation == null || participation.isBlank()) {
+            return null;
+        }
+        List<String> values = java.util.Arrays.stream(participation.split("\\|"))
+                .map(String::trim)
+                .filter(value -> !value.isBlank())
+                .map(value -> value.replace("+", ","))
+                .distinct()
+                .toList();
+        if (values.isEmpty()) {
+            return null;
+        }
+        return (root, query, criteriaBuilder) -> criteriaBuilder.or(
+                values.stream()
+                        .map(value -> criteriaBuilder.equal(
+                                criteriaBuilder.lower(root.get("participationFields")),
+                                value.toLowerCase(Locale.ROOT)
+                        ))
+                        .toArray(jakarta.persistence.criteria.Predicate[]::new)
+        );
+    }
+
+    private String normalizeParticipationForSave(String participationFields) {
+        return participationFields == null || participationFields.isBlank()
+                ? "개발"
+                : participationFields.trim();
     }
 
     private String summary(String content) {
