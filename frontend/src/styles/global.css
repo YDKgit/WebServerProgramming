@@ -659,6 +659,129 @@ dd {
   grid-template-columns: minmax(0, 1fr) 240px auto;
 }
 
+.client-profile-panel {
+  padding: 30px;
+}
+
+.client-profile-head {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 24px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-soft);
+}
+
+.client-profile-head h3 {
+  margin: 8px 0 4px;
+  font-size: 22px;
+}
+
+.client-profile-head p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.client-profile-image-actions {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.client-profile-image-actions strong {
+  font-size: 20px;
+}
+
+.client-profile-image-actions p {
+  font-size: 13px;
+}
+
+.client-profile-image {
+  width: 96px;
+  height: 96px;
+  flex: 0 0 96px;
+  display: grid;
+  overflow: hidden;
+  place-items: center;
+  border: 1px solid #dfe3e8;
+  border-radius: 50%;
+  color: #8b95a5;
+  background: linear-gradient(145deg, #f7f8fa, #e7eaf0);
+  font-size: 32px;
+  font-weight: 900;
+}
+
+.client-profile-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.client-profile-edit-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.client-profile-edit-grid label,
+.client-profile-introduction-field {
+  display: grid;
+  gap: 8px;
+  color: #374151;
+  font-weight: 800;
+}
+
+.client-profile-edit-grid input,
+.client-profile-edit-grid select,
+.client-profile-introduction-field textarea {
+  width: 100%;
+  border-color: #d8dde5;
+  background: #fff;
+}
+
+.client-profile-introduction-field {
+  position: relative;
+  margin-top: 18px;
+}
+
+.client-profile-introduction-field textarea {
+  min-height: 150px;
+  resize: vertical;
+}
+
+.client-profile-introduction-field span {
+  justify-self: end;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.client-profile-save-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 22px;
+}
+
+.client-profile-save-actions .btn {
+  min-width: 120px;
+}
+
+.client-profile-info {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.client-profile-info .client-profile-introduction {
+  grid-column: 1 / -1;
+}
+
+.client-profile-introduction dd {
+  white-space: pre-wrap;
+  line-height: 1.7;
+}
+
 .compact-meta {
   grid-template-columns: 1fr;
 }
@@ -2012,6 +2135,23 @@ dd {
 }
 
 @media (max-width: 700px) {
+  .client-profile-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .client-profile-info {
+    grid-template-columns: 1fr;
+  }
+
+  .client-profile-edit-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .client-profile-info .client-profile-introduction {
+    grid-column: auto;
+  }
+
   .market-toolbar,
   .project-marketplace .market-toolbar,
   .project-card-heading,

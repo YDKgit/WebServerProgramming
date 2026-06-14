@@ -11,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 @Tag(name = "Member", description = "개발자 프로필 API")
 @RestController
@@ -54,7 +53,10 @@ public class MemberController {
     private Long getLoginMemberId(HttpSession session) {
         Long memberId = (Long) session.getAttribute("loginMemberId");
         if (memberId == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
+            throw new com.example.springstudy.exception.ApiException(
+                    HttpStatus.UNAUTHORIZED,
+                    "로그인이 필요합니다."
+            );
         }
         return memberId;
     }

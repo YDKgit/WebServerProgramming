@@ -81,9 +81,8 @@ public class ApplicationController {
     @Operation(summary = "지원자 수락")
     @PatchMapping("/{applicationId}/accept")
     public ResponseEntity<?> acceptApplication(
-            @PathVariable Long applicationId,
-            HttpSession session
-    ) {
+            @PathVariable Long applicationId, HttpSession session) {
+
         Long memberId = (Long) session.getAttribute("loginMemberId");
         String role = (String) session.getAttribute("loginMemberRole");
 
@@ -98,4 +97,5 @@ public class ApplicationController {
                 applicationService.acceptApplication(applicationId, memberId);
         return ResponseEntity.ok(CommonResponse.ok(response));
     }
+
 }

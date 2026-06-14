@@ -35,6 +35,7 @@ out/
 
 # Runtime uploads
 /uploads/
+/data/
 
 ### VS Code ###
 .vscode/

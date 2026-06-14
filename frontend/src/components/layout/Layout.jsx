@@ -1,16 +1,31 @@
+import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { authApi } from '../../api/api';
 
 export default function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
-  const loginUser = JSON.parse(localStorage.getItem('loginUser') || 'null');
+  const [loginUser, setLoginUser] = useState(
+    () => JSON.parse(localStorage.getItem('loginUser') || 'null'),
+  );
   const isDeveloper = loginUser?.role === 'DEVELOPER';
   const isClient = loginUser?.role === 'CLIENT';
   const clientTab = new URLSearchParams(location.search).get('tab');
   const requestMenuActive = location.pathname === '/client/mypage' && clientTab === 'request';
   const managementMenuActive = location.pathname.startsWith('/client/projects')
-    || (location.pathname === '/client/mypage' && clientTab !== 'request');
+    || (location.pathname === '/client/mypage' && clientTab === 'projects');
+  const clientMyPageActive = location.pathname === '/client/mypage'
+    && clientTab !== 'request'
+    && clientTab !== 'projects';
+
+  useEffect(() => {
+    const handleLoginUserUpdated = (event) => {
+      setLoginUser(event.detail || JSON.parse(localStorage.getItem('loginUser') || 'null'));
+    };
+
+    window.addEventListener('login-user-updated', handleLoginUserUpdated);
+    return () => window.removeEventListener('login-user-updated', handleLoginUserUpdated);
+  }, []);
 
   const logout = async () => {
     try {
@@ -19,6 +34,7 @@ export default function Layout() {
       console.error('로그아웃 요청 실패:', event);
     } finally {
       localStorage.removeItem('loginUser');
+      setLoginUser(null);
       navigate('/login', { replace: true });
     }
   };
@@ -37,6 +53,12 @@ export default function Layout() {
             {isDeveloper && <NavLink to="/developer/mypage">파트너 관리</NavLink>}
             {isClient && (
               <>
+                <NavLink
+                  to="/client/mypage?tab=profile"
+                  className={() => (clientMyPageActive ? 'active' : undefined)}
+                >
+                  마이페이지
+                </NavLink>
                 <NavLink
                   to="/client/mypage?tab=request"
                   className={() => (requestMenuActive ? 'active' : undefined)}

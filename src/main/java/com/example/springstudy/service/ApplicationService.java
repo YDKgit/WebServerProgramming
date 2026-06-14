@@ -1,6 +1,5 @@
 package com.example.springstudy.service;
 
-
 import com.example.springstudy.domain.Application;
 import com.example.springstudy.domain.ApplicationStatus;
 import com.example.springstudy.domain.Member;
@@ -12,7 +11,6 @@ import com.example.springstudy.exception.ApiException;
 import com.example.springstudy.repository.ApplicationRepository;
 import com.example.springstudy.repository.MemberRepository;
 import com.example.springstudy.repository.ProjectRepository;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -35,7 +33,6 @@ public class ApplicationService {
         return applicationRepository.findAll();
     }
 
-    // 이메일(@) 또는 전화번호(숫자 8자리 이상) 포함 여부 검사
     private void validateProposalContent(String content) {
         if (content == null) return;
         if (content.contains("@")) {
@@ -59,7 +56,6 @@ public class ApplicationService {
 
         Project project = projectRepository.findById(request.getProjectId())
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "프로젝트를 찾을 수 없습니다."));
-
         Member developer = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "회원을 찾을 수 없습니다."));
 
@@ -83,6 +79,7 @@ public class ApplicationService {
         application.setExperienceLevel(request.getExperienceLevel());
         application.setHeadcount(request.getHeadcount());
         application.setStatus(ApplicationStatus.PENDING);
+
         Application saved;
         try {
             saved = applicationRepository.saveAndFlush(application);
@@ -97,7 +94,6 @@ public class ApplicationService {
     }
 
     public List<ApplicationDto.MyApplicationItem> getMyApplications(Long memberId) {
-
         List<Application> applications = applicationRepository.findByDeveloperId(memberId);
 
         return applications.stream()
@@ -115,19 +111,18 @@ public class ApplicationService {
     public ApplicationDto.ApplicationDetail getApplicationDetail(Long applicationId, Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "회원을 찾을 수 없습니다."));
-
-        Application app = applicationRepository.findById(applicationId)
+        Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "지원서를 찾을 수 없습니다."));
 
-        boolean isDeveloperOwner = member.getRole() == Role.DEVELOPER
-                && app.getDeveloper().getId().equals(memberId);
-        boolean isClientOwner = member.getRole() == Role.CLIENT
-                && app.getProject().getClient().getId().equals(memberId);
-        if (!isDeveloperOwner && !isClientOwner) {
+        boolean developerOwner = member.getRole() == Role.DEVELOPER
+                && application.getDeveloper().getId().equals(memberId);
+        boolean clientOwner = member.getRole() == Role.CLIENT
+                && application.getProject().getClient().getId().equals(memberId);
+        if (!developerOwner && !clientOwner) {
             throw new ApiException(HttpStatus.FORBIDDEN, "지원서를 조회할 권한이 없습니다.");
         }
 
-        return toDetail(app);
+        return toDetail(application);
     }
 
     @Transactional
@@ -138,31 +133,31 @@ public class ApplicationService {
             throw new ApiException(HttpStatus.FORBIDDEN, "의뢰인만 지원자를 수락할 수 있습니다.");
         }
 
-        Application app = applicationRepository.findByIdAndProjectClientId(applicationId, memberId)
+        Application application = applicationRepository.findByIdAndProjectClientId(applicationId, memberId)
                 .orElseThrow(() -> new ApiException(HttpStatus.FORBIDDEN, "해당 지원서를 수락할 권한이 없습니다."));
-        if (statusOf(app) == ApplicationStatus.ACCEPTED) {
+        if (statusOf(application) == ApplicationStatus.ACCEPTED) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "이미 수락된 지원서입니다.");
         }
 
-        app.setStatus(ApplicationStatus.ACCEPTED);
-        applicationRepository.save(app);
-        return toDetail(app);
+        application.setStatus(ApplicationStatus.ACCEPTED);
+        applicationRepository.save(application);
+        return toDetail(application);
     }
 
-    private ApplicationDto.ApplicationDetail toDetail(Application app) {
+    private ApplicationDto.ApplicationDetail toDetail(Application application) {
         return ApplicationDto.ApplicationDetail.builder()
-                .applicationId(app.getId())
-                .projectId(app.getProject().getId())
-                .projectTitle(app.getProject().getTitle())
-                .developerName(app.getDeveloper().getName())
-                .workDuration(app.getWorkDuration())
-                .bidAmount(app.getBidAmount())
-                .proposalContent(app.getProposalContent())
-                .techCategory(app.getTechCategory())
-                .experienceLevel(app.getExperienceLevel())
-                .headcount(app.getHeadcount())
-                .appliedAt(app.getAppliedAt())
-                .status(statusOf(app).name())
+                .applicationId(application.getId())
+                .projectId(application.getProject().getId())
+                .projectTitle(application.getProject().getTitle())
+                .developerName(application.getDeveloper().getName())
+                .workDuration(application.getWorkDuration())
+                .bidAmount(application.getBidAmount())
+                .proposalContent(application.getProposalContent())
+                .techCategory(application.getTechCategory())
+                .experienceLevel(application.getExperienceLevel())
+                .headcount(application.getHeadcount())
+                .appliedAt(application.getAppliedAt())
+                .status(statusOf(application).name())
                 .build();
     }
 

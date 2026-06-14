@@ -48,7 +48,12 @@ public class ProjectController {
     @GetMapping
     public ResponseEntity<?> getProjects(
             @Parameter(description = "검색 키워드") @RequestParam(required = false) String keyword,
+            @Parameter(description = "프로젝트 유형") @RequestParam(required = false, name = "type") String projectType,
             @Parameter(description = "고용형태 필터 (도급 또는 상주)") @RequestParam(required = false) String employmentType,
+            @Parameter(description = "참여파트 필터") @RequestParam(required = false) String participation,
+            @Parameter(description = "지역 필터") @RequestParam(required = false) String region,
+            @Parameter(description = "모집상태 필터") @RequestParam(required = false) String status,
+            @Parameter(description = "정렬") @RequestParam(required = false, name = "sort") String sort,
             @PageableDefault(size = 4, sort = "id", direction = Sort.Direction.DESC) Pageable pageable, HttpSession session) {
 
         Long memberId = (Long) session.getAttribute("loginMemberId");
@@ -56,7 +61,17 @@ public class ProjectController {
             return ResponseEntity.status(401).body(new CommonResponse<>(false, "로그인이 필요합니다."));
         }
 
-        ProjectDto.PageResponse<ProjectDto.ProjectSummary> response = projectService.getProjects(keyword, employmentType, pageable, memberId);
+        ProjectDto.PageResponse<ProjectDto.ProjectSummary> response = projectService.getProjects(
+                keyword,
+                projectType,
+                employmentType,
+                participation,
+                region,
+                status,
+                sort,
+                pageable,
+                memberId
+        );
 
         return ResponseEntity.ok(CommonResponse.ok(response));
     }
@@ -107,6 +122,27 @@ public class ProjectController {
 
         List<ProjectDto.ProjectSummary> response = projectService.getMyClientProjects(memberId);
 
+        return ResponseEntity.ok(CommonResponse.ok(response));
+    }
+
+    @Operation(summary = "프로젝트 수정 (의뢰인용)")
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateProject(
+            @PathVariable Long id,
+            @RequestBody ProjectDto.ProjectUpdateRequest request,
+            HttpSession session) {
+
+        Long memberId = (Long) session.getAttribute("loginMemberId");
+        String role = (String) session.getAttribute("loginMemberRole");
+
+        if (memberId == null) {
+            return ResponseEntity.status(401).body(new CommonResponse<>(false, "로그인이 필요합니다."));
+        }
+        if (!"CLIENT".equals(role)) {
+            return ResponseEntity.status(403).body(new CommonResponse<>(false, "권한이 없습니다."));
+        }
+
+        ProjectDto.ProjectDetail response = projectService.updateProject(id, request, memberId);
         return ResponseEntity.ok(CommonResponse.ok(response));
     }
 }

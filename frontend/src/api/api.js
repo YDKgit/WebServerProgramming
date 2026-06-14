@@ -127,7 +127,7 @@ export const projectApi = {
   },
 };
 
-export const developerApi = {
+export const memberApi = {
   getProfile() {
     return request('/member/profile');
   },
@@ -147,6 +147,20 @@ export const developerApi = {
       method: 'POST',
       body: formData,
     });
+  },
+};
+
+export const developerApi = {
+  getProfile() {
+    return memberApi.getProfile();
+  },
+
+  updateProfile(payload) {
+    return memberApi.updateProfile(payload);
+  },
+
+  uploadProfileImage(file) {
+    return memberApi.uploadProfileImage(file);
   },
 
   applyProject(projectId, payload) {

@@ -4,9 +4,11 @@ import { projectApi } from '../../api/api';
 import { calcDday, formatMoney, formatType, toProjectView } from '../../utils/format';
 import ErrorBox from '../common/ErrorBox.jsx';
 import Loading from '../common/Loading.jsx';
+import ClientProfilePanel from './ClientProfilePanel.jsx';
 import ClientProjectFormPage from './ClientProjectFormPage.jsx';
 
 const menuItems = [
+  { id: 'profile', label: '프로필 정보', desc: '기본 회원 정보 확인' },
   { id: 'request', label: '프로젝트 의뢰하기', desc: '새 프로젝트 등록' },
   { id: 'projects', label: '프로젝트 관리', desc: '의뢰와 지원자 현황 확인' },
 ];
@@ -14,7 +16,9 @@ const menuItems = [
 export default function ClientMyPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedTab = searchParams.get('tab');
-  const tab = requestedTab === 'request' ? 'request' : 'projects';
+  const tab = ['profile', 'request', 'projects'].includes(requestedTab)
+    ? requestedTab
+    : 'profile';
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -72,7 +76,9 @@ export default function ClientMyPage() {
         </aside>
 
         <div className="mypage-content">
-          {tab === 'request' ? (
+          {tab === 'profile' ? (
+            <ClientProfilePanel />
+          ) : tab === 'request' ? (
             <ClientProjectFormPage embedded onCreated={handleCreated} />
           ) : (
             <section className="panel">
