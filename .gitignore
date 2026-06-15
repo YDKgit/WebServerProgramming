@@ -36,5 +36,8 @@ out/
 # Runtime uploads
 /uploads/
 
+# H2 file database
+/data/
+
 ### VS Code ###
 .vscode/

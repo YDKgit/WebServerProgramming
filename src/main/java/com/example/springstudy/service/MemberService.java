@@ -4,6 +4,7 @@ import com.example.springstudy.domain.Member;
 import com.example.springstudy.dto.MemberDto;
 import com.example.springstudy.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MemberService {
@@ -63,6 +65,9 @@ public class MemberService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "업로드할 이미지 파일을 선택해 주세요.");
         }
 
+        log.info("프로필 이미지 업로드 시작 - memberId={}, originalFilename={}, size={}bytes, contentType={}",
+                memberId, image.getOriginalFilename(), image.getSize(), image.getContentType());
+
         String extension = getImageExtension(image.getContentType());
         Member member = findMember(memberId);
         Path profileUploadDir = Paths.get(uploadDir, "profile").toAbsolutePath().normalize();
@@ -83,10 +88,15 @@ public class MemberService {
             memberRepository.save(member);
             deletePreviousUploadedImage(previousImagePath, savePath);
 
+            log.info("프로필 이미지 저장 완료 - memberId={}, savedPath={}, dbPath={}, previousPath={}",
+                    memberId, savePath, imagePath, previousImagePath);
+
             return MemberDto.ImageUploadResponse.builder()
                     .profileImage(imagePath)
                     .build();
         } catch (IOException e) {
+            log.error("프로필 이미지 저장 실패 - memberId={}, originalFilename={}",
+                    memberId, image.getOriginalFilename(), e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "이미지 저장 중 오류가 발생했습니다.", e);
         }
     }
