@@ -14,6 +14,7 @@ import ErrorBox from '../common/ErrorBox.jsx';
 import Loading from '../common/Loading.jsx';
 
 const APPLICANT_PAGE_SIZE = 2;
+const PARTICIPATION_OPTIONS = ['기획', '디자인', '개발'];
 
 function formatExpectedPeriod(value) {
   if (value === undefined || value === null || value === '') return '-';
@@ -152,6 +153,7 @@ export default function ClientProjectDetailPage() {
       budget: project.budget ?? '',
       workContent: project.description || '',
       requiredSkills: (project.skills || []).join(', '),
+      participationFields: project.fields || [],
       estimatedDuration: project.expectedPeriod ?? '',
       workType: project.workMethod || '',
       startDate: project.startDate || '',
@@ -165,8 +167,21 @@ export default function ClientProjectDetailPage() {
     setProjectForm((current) => ({ ...current, [name]: value }));
   };
 
+  const toggleProjectParticipation = (field) => {
+    setProjectForm((current) => ({
+      ...current,
+      participationFields: current.participationFields.includes(field)
+        ? current.participationFields.filter((item) => item !== field)
+        : [...current.participationFields, field],
+    }));
+  };
+
   const updateProject = async (event) => {
     event.preventDefault();
+    if ((projectForm.participationFields || []).length === 0) {
+      setError('참여파트를 1개 이상 선택해 주세요.');
+      return;
+    }
     setSaving(true);
     setError('');
     try {
@@ -195,7 +210,7 @@ export default function ClientProjectDetailPage() {
   return (
     <section className="client-project-page">
       <div className="client-detail-nav">
-        <Link to="/client/mypage?tab=projects" className="btn text">← 프로젝트 관리로 돌아가기</Link>
+        <Link to="/client-projects" className="btn text">← 프로젝트 관리로 돌아가기</Link>
       </div>
 
       <section className="panel client-project-detail">
@@ -221,6 +236,7 @@ export default function ClientProjectDetailPage() {
           <div><dt>진행 방식</dt><dd>{project.workMethod || '-'}</dd></div>
           <div><dt>예상 기간</dt><dd>{formatExpectedPeriod(project.expectedPeriod)}</dd></div>
           <div><dt>모집 상태</dt><dd>{formatStatus(project.status)}</dd></div>
+          <div><dt>참여파트</dt><dd>{(project.fields || []).join(' · ') || '-'}</dd></div>
           <div><dt>필요 기술</dt><dd>{(project.skills || []).join(', ') || '-'}</dd></div>
         </dl>
 
@@ -266,6 +282,24 @@ export default function ClientProjectDetailPage() {
                 진행 방식
                 <input name="workType" value={projectForm.workType} onChange={changeProjectForm} />
               </label>
+            </div>
+            <div className="form-section participation-fieldset">
+              <div>
+                <label>참여파트 분류</label>
+                <p>프로젝트에 필요한 업무 분야를 선택해 주세요. 복수 선택 가능</p>
+              </div>
+              <div className="checkbox-row-group">
+                {PARTICIPATION_OPTIONS.map((field) => (
+                  <label className="market-check-row inline-check-row" key={field}>
+                    <input
+                      type="checkbox"
+                      checked={(projectForm.participationFields || []).includes(field)}
+                      onChange={() => toggleProjectParticipation(field)}
+                    />
+                    <span>{field}</span>
+                  </label>
+                ))}
+              </div>
             </div>
             <label>
               필요 기술
@@ -371,6 +405,8 @@ export default function ClientProjectDetailPage() {
             </div>
             <dl className="info-list">
               <div><dt>지원자</dt><dd>{selectedApplication.developerName || '-'}</dd></div>
+              <div><dt>이메일</dt><dd>{selectedApplication.email || '-'}</dd></div>
+              <div><dt>전화번호</dt><dd>{selectedApplication.phone || '-'}</dd></div>
               <div><dt>지원 금액</dt><dd>{formatMoney(selectedApplication.bidAmount, project.type)}</dd></div>
               <div><dt>지원일</dt><dd>{formatDateTimeMinute(selectedApplication.appliedAt)}</dd></div>
               <div><dt>지원 상태</dt><dd>{formatApplicationStatus(selectedApplication.status)}</dd></div>

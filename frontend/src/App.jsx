@@ -7,6 +7,7 @@ import ApplyPage from "./components/apply/ApplyPage.jsx";
 import DeveloperMyPage from "./components/developerMyPage/DeveloperMyPage.jsx";
 import ClientProjectFormPage from "./components/clientMyPage/ClientProjectFormPage.jsx";
 import ClientMyPage from "./components/clientMyPage/ClientMyPage.jsx";
+import ClientProfilePanel from "./components/clientMyPage/ClientProfilePanel.jsx";
 import ClientProjectDetailPage from "./components/clientMyPage/ClientProjectDetailPage.jsx";
 import { RequireAuth, RequireRole } from "./components/auth/RouteGuard.jsx";
 import PartnersPage from "./components/partners/PartnersPage.jsx";
@@ -43,6 +44,11 @@ export default function App() {
 
           <Route
             path="/client/new-project"
+            element={<Navigate to="/client-project-form" replace />}
+          />
+
+          <Route
+            path="/client-project-form"
             element={
               <RequireRole role="CLIENT">
                 <ClientProjectFormPage />
@@ -52,6 +58,20 @@ export default function App() {
 
           <Route
             path="/client/mypage"
+            element={<Navigate to="/client-projects" replace />}
+          />
+
+          <Route
+            path="/client-mypage"
+            element={
+              <RequireRole role="CLIENT">
+                <ClientProfilePanel />
+              </RequireRole>
+            }
+          />
+
+          <Route
+            path="/client-projects"
             element={
               <RequireRole role="CLIENT">
                 <ClientMyPage />

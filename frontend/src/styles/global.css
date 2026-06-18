@@ -558,6 +558,32 @@ dd {
   gap: 8px;
 }
 
+.participation-fieldset {
+  gap: 10px;
+}
+
+.participation-fieldset p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.checkbox-row-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.inline-check-row {
+  width: auto;
+  min-width: 104px;
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+}
+
 .inline-form {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -580,6 +606,10 @@ dd {
   grid-template-columns: 260px minmax(0, 1fr);
   gap: 22px;
   align-items: start;
+}
+
+.client-projects-only-layout {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .mypage-content {

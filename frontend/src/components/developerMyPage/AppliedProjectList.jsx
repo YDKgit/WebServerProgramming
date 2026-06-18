@@ -90,6 +90,8 @@ export default function AppliedProjectList() {
             </div>
             <dl className="info-list">
               <div><dt>개발자</dt><dd>{selected.developerName || '-'}</dd></div>
+              <div><dt>이메일</dt><dd>{selected.email || '-'}</dd></div>
+              <div><dt>전화번호</dt><dd>{selected.phone || '-'}</dd></div>
               <div><dt>지원 금액</dt><dd>{formatMoney(selected.bidAmount, 'OUTSOURCING')}</dd></div>
               <div><dt>작업 기간</dt><dd>{selected.workDuration ? `${selected.workDuration}일` : '-'}</dd></div>
               <div><dt>지원일</dt><dd>{formatDateTimeMinute(selected.appliedAt)}</dd></div>

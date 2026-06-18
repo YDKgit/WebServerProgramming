@@ -19,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Locale;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,18 +31,11 @@ public class ApplicationService {
     private final ProjectRepository projectRepository;
     private final MemberRepository memberRepository;
 
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}$", Pattern.CASE_INSENSITIVE);
+    private static final Pattern MOBILE_PHONE_PATTERN = Pattern.compile("^01[016789]\\d{7,8}$");
+
     public List<Application> getApplication(){
         return applicationRepository.findAll();
-    }
-
-    private void validateProposalContent(String content) {
-        if (content == null) return;
-        if (content.contains("@")) {
-            throw new ApiException(HttpStatus.BAD_REQUEST, "제안 내용에 이메일을 포함할 수 없습니다.");
-        }
-        if (content.replaceAll("[^0-9]", "").length() >= 8) {
-            throw new ApiException(HttpStatus.BAD_REQUEST, "제안 내용에 전화번호를 포함할 수 없습니다.");
-        }
     }
 
     @Transactional
@@ -51,8 +46,6 @@ public class ApplicationService {
         if (request.getProjectId() == null) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "프로젝트 ID가 필요합니다.");
         }
-
-        validateProposalContent(request.getProposalContent());
 
         Project project = projectRepository.findById(request.getProjectId())
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "프로젝트를 찾을 수 없습니다."));
@@ -69,15 +62,21 @@ public class ApplicationService {
             throw new ApiException(HttpStatus.BAD_REQUEST, "마감된 프로젝트에는 지원할 수 없습니다.");
         }
 
+        validateCommonFields(request);
+        validateFieldsByProjectType(project, request);
+        boolean residentProject = isResidentProject(project);
+
         Application application = new Application();
         application.setProject(project);
         application.setDeveloper(developer);
-        application.setWorkDuration(request.getWorkDuration());
+        application.setWorkDuration(residentProject ? null : request.getWorkDuration());
         application.setBidAmount(request.getBidAmount());
         application.setProposalContent(request.getProposalContent());
-        application.setTechCategory(request.getTechCategory());
-        application.setExperienceLevel(request.getExperienceLevel());
-        application.setHeadcount(request.getHeadcount());
+        application.setEmail(request.getEmail().trim());
+        application.setPhone(normalizePhone(request.getPhone()));
+        application.setTechCategory(residentProject ? request.getTechCategory() : null);
+        application.setExperienceLevel(residentProject ? request.getExperienceLevel() : null);
+        application.setHeadcount(residentProject ? normalizedHeadcount(request.getHeadcount()) : null);
         application.setStatus(ApplicationStatus.PENDING);
 
         Application saved;
@@ -150,6 +149,8 @@ public class ApplicationService {
                 .projectId(application.getProject().getId())
                 .projectTitle(application.getProject().getTitle())
                 .developerName(application.getDeveloper().getName())
+                .email(application.getEmail())
+                .phone(application.getPhone())
                 .workDuration(application.getWorkDuration())
                 .bidAmount(application.getBidAmount())
                 .proposalContent(application.getProposalContent())
@@ -168,5 +169,77 @@ public class ApplicationService {
 
     private ApplicationStatus statusOf(Application application) {
         return application.getStatus() == null ? ApplicationStatus.PENDING : application.getStatus();
+    }
+
+    private void validateCommonFields(ApplicationDto.ApplyRequest request) {
+        if (!hasText(request.getProposalContent())) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "지원 내용을 입력해 주세요.");
+        }
+        if (!hasText(request.getEmail())) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "이메일을 입력해 주세요.");
+        }
+        if (!EMAIL_PATTERN.matcher(request.getEmail().trim()).matches()) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "올바른 이메일 형식으로 입력해 주세요.");
+        }
+        if (!hasText(request.getPhone())) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "전화번호를 입력해 주세요.");
+        }
+        if (!MOBILE_PHONE_PATTERN.matcher(onlyDigits(request.getPhone())).matches()) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "올바른 전화번호 형식으로 입력해 주세요.");
+        }
+    }
+
+    private void validateFieldsByProjectType(Project project, ApplicationDto.ApplyRequest request) {
+        if (isResidentProject(project)) {
+            if (request.getBidAmount() == null || request.getBidAmount() <= 0) {
+                throw new ApiException(HttpStatus.BAD_REQUEST, "희망 급여를 입력해 주세요.");
+            }
+            if (!hasText(request.getTechCategory())) {
+                throw new ApiException(HttpStatus.BAD_REQUEST, "기술 구분을 입력해 주세요.");
+            }
+            if (!hasText(request.getExperienceLevel())) {
+                throw new ApiException(HttpStatus.BAD_REQUEST, "경력 구분을 입력해 주세요.");
+            }
+            return;
+        }
+
+        if (request.getWorkDuration() == null || request.getWorkDuration() <= 0) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "예상 작업 기간을 입력해 주세요.");
+        }
+        if (request.getBidAmount() == null || request.getBidAmount() <= 0) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "제안 금액을 입력해 주세요.");
+        }
+    }
+
+    private boolean isResidentProject(Project project) {
+        String type = project.getEmploymentType();
+        if (!hasText(type)) {
+            return false;
+        }
+        String normalized = type.trim().toUpperCase(Locale.ROOT);
+        return "RESIDENT".equals(normalized) || type.contains("상주");
+    }
+
+    private int normalizedHeadcount(Integer headcount) {
+        return headcount == null || headcount < 1 ? 1 : headcount;
+    }
+
+    private String normalizePhone(String phone) {
+        String digits = onlyDigits(phone);
+        if (digits.length() == 11) {
+            return digits.substring(0, 3) + "-" + digits.substring(3, 7) + "-" + digits.substring(7);
+        }
+        if (digits.length() == 10) {
+            return digits.substring(0, 3) + "-" + digits.substring(3, 6) + "-" + digits.substring(6);
+        }
+        return phone.trim();
+    }
+
+    private String onlyDigits(String value) {
+        return value == null ? "" : value.replaceAll("[^0-9]", "");
+    }
+
+    private boolean hasText(String value) {
+        return value != null && !value.isBlank();
     }
 }

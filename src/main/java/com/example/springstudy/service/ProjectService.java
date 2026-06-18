@@ -35,6 +35,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProjectService {
 
+    private static final List<String> ALLOWED_PARTICIPATION_FIELDS = List.of("기획", "디자인", "개발");
+
     private final ApplicationRepository applicationRepository;
     private final ProjectRepository projectRepository;
     private final MemberRepository memberRepository;
@@ -58,7 +60,7 @@ public class ProjectService {
         project.setBudget(request.getBudget());
         project.setDescription(request.getWorkContent());
         project.setRequiredSkills(request.getRequiredSkills());
-        project.setParticipationFields(defaultParticipation(request.getParticipationFields()));
+        project.setParticipationFields(normalizeParticipationFields(request.getParticipationFields()));
         project.setProjectFields("web");
         project.setEstimatedDays(request.getEstimatedDuration());
         project.setWorkType(request.getWorkType());
@@ -173,9 +175,7 @@ public class ProjectService {
         project.setBudget(request.getBudget());
         project.setDescription(request.getWorkContent());
         project.setRequiredSkills(request.getRequiredSkills());
-        if (request.getParticipationFields() != null) {
-            project.setParticipationFields(defaultParticipation(request.getParticipationFields()));
-        }
+        project.setParticipationFields(normalizeParticipationFields(request.getParticipationFields()));
         project.setEstimatedDays(request.getEstimatedDuration());
         project.setWorkType(request.getWorkType());
         project.setKickoffDate(request.getStartDate() == null ? null : request.getStartDate().toString());
@@ -300,19 +300,23 @@ public class ProjectService {
                 root.get("participationFields"),
                 "%" + part + "%"
         );
+        Predicate noParticipationConfigured = criteriaBuilder.or(
+                criteriaBuilder.isNull(root.get("participationFields")),
+                criteriaBuilder.equal(root.get("participationFields"), "")
+        );
         if (!"개발".equals(part)) {
-            return criteriaBuilder.or(
-                    configured,
+            return criteriaBuilder.or(configured, criteriaBuilder.and(
+                    noParticipationConfigured,
                     criteriaBuilder.like(root.get("projectFields"), "%" + part + "%")
-            );
+            ));
         }
 
-        return criteriaBuilder.or(
-                configured,
+        return criteriaBuilder.or(configured, criteriaBuilder.and(
+                noParticipationConfigured,
                 root.get("projectFields").in(
                         "백엔드", "프론트엔드", "풀스택", "DevOps", "web", "app"
                 )
-        );
+        ));
     }
 
     private Page<Project> findProjectPage(
@@ -439,8 +443,30 @@ public class ProjectService {
         return employmentType;
     }
 
-    private String defaultParticipation(String participationFields) {
-        return hasText(participationFields) ? participationFields : "개발";
+    private String normalizeParticipationFields(List<String> participationFields) {
+        if (participationFields == null || participationFields.isEmpty()) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "참여파트를 1개 이상 선택해 주세요.");
+        }
+
+        List<String> normalized = participationFields.stream()
+                .filter(this::hasText)
+                .map(String::trim)
+                .distinct()
+                .toList();
+
+        if (normalized.isEmpty()) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "참여파트를 1개 이상 선택해 주세요.");
+        }
+
+        for (String field : normalized) {
+            if (!ALLOWED_PARTICIPATION_FIELDS.contains(field)) {
+                throw new ApiException(HttpStatus.BAD_REQUEST, "허용되지 않은 참여파트입니다.");
+            }
+        }
+
+        return ALLOWED_PARTICIPATION_FIELDS.stream()
+                .filter(normalized::contains)
+                .collect(Collectors.joining(","));
     }
 
     private LocalDate parseDate(String value) {

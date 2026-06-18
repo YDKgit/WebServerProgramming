@@ -36,7 +36,9 @@ public class Application {
     private Integer bidAmount;        // 지원금액/임금
 
     @Column(columnDefinition = "TEXT")
-    private String proposalContent;   // 지원내용 (연락처 이메일 필터링)
+    private String proposalContent;   // 지원내용
+    private String email;
+    private String phone;
 
     // ======= 프로젝트 지원 (상주 전용 정보) =======
     private String techCategory;      // 기술구분

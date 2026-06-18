@@ -8,12 +8,15 @@ const initialForm = {
   title: '',
   deadline: '',
   type: 'OUTSOURCING',
+  participationFields: [],
   budget: '',
   expectedPeriod: '',
   description: '',
   workMethod: '원격',
   skills: [],
 };
+
+const PARTICIPATION_OPTIONS = ['기획', '디자인', '개발'];
 
 export default function ClientProjectFormPage({ embedded = false, onCreated }) {
   const navigate = useNavigate();
@@ -26,8 +29,21 @@ export default function ClientProjectFormPage({ embedded = false, onCreated }) {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  const toggleParticipation = (field) => {
+    setForm((prev) => ({
+      ...prev,
+      participationFields: prev.participationFields.includes(field)
+        ? prev.participationFields.filter((item) => item !== field)
+        : [...prev.participationFields, field],
+    }));
+  };
+
   const submitProject = async (event) => {
     event.preventDefault();
+    if (form.participationFields.length === 0) {
+      setError('참여파트를 1개 이상 선택해 주세요.');
+      return;
+    }
     setSaving(true);
     setError('');
     try {
@@ -38,6 +54,7 @@ export default function ClientProjectFormPage({ embedded = false, onCreated }) {
         budget: Number(form.budget),
         workContent: form.description,
         requiredSkills: form.skills.join(', '),
+        participationFields: form.participationFields,
         estimatedDuration: Number(form.expectedPeriod) || null,
         workType: form.workMethod,
       });
@@ -46,7 +63,7 @@ export default function ClientProjectFormPage({ embedded = false, onCreated }) {
       if (onCreated) {
         await onCreated(createdProject);
       } else {
-        navigate('/client/mypage?tab=projects');
+        navigate('/client-projects');
       }
     } catch (event) {
       setError(event.message);
@@ -98,6 +115,25 @@ export default function ClientProjectFormPage({ embedded = false, onCreated }) {
           <label>진행 방식
             <input name="workMethod" value={form.workMethod} onChange={handleChange} placeholder="예: 원격 / 상주" />
           </label>
+        </div>
+
+        <div className="form-section participation-fieldset">
+          <div>
+            <label>참여파트 분류</label>
+            <p>프로젝트에 필요한 업무 분야를 선택해 주세요. 복수 선택 가능</p>
+          </div>
+          <div className="checkbox-row-group">
+            {PARTICIPATION_OPTIONS.map((field) => (
+              <label className="market-check-row inline-check-row" key={field}>
+                <input
+                  type="checkbox"
+                  checked={form.participationFields.includes(field)}
+                  onChange={() => toggleParticipation(field)}
+                />
+                <span>{field}</span>
+              </label>
+            ))}
+          </div>
         </div>
 
         <label>업무 내용

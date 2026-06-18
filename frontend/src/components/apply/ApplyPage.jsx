@@ -3,21 +3,36 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { developerApi, projectApi } from '../../api/api';
 import ErrorBox from '../common/ErrorBox.jsx';
 import Loading from '../common/Loading.jsx';
-import { formatMoney, formatType, hasContactInfo, isProjectClosed, toProjectView } from '../../utils/format';
+import { formatMoney, formatType, isProjectClosed, toProjectView } from '../../utils/format';
 
 const initialResidentForm = {
-  workPeriod: '',
-  bidAmount: '',
-  content: '',
-};
-
-const initialOutsourcingForm = {
   skillCategory: '개발',
   careerYear: '',
   headcount: 1,
   bidAmount: '',
   content: '',
+  email: '',
+  phone: '',
 };
+
+const initialOutsourcingForm = {
+  workPeriod: '',
+  bidAmount: '',
+  content: '',
+  email: '',
+  phone: '',
+};
+
+const emailPattern = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+const phonePattern = /^01[016789]\d{7,8}$/;
+
+function isValidEmail(value) {
+  return emailPattern.test(String(value || '').trim());
+}
+
+function isValidPhone(value) {
+  return phonePattern.test(String(value || '').replace(/[^0-9]/g, ''));
+}
 
 export default function ApplyPage() {
   const loginUser = JSON.parse(localStorage.getItem('loginUser') || 'null');
@@ -68,37 +83,47 @@ export default function ApplyPage() {
   const canSubmit = useMemo(() => {
     if (!project || eligibilityError) return false;
     if (!form.bidAmount || !form.content.trim()) return false;
-    if (hasContactInfo(form.content)) return false;
-    if (isResident) return Boolean(form.workPeriod);
-    return Boolean(form.skillCategory && form.careerYear);
+    if (!isValidEmail(form.email) || !isValidPhone(form.phone)) return false;
+    if (isResident) return Boolean(form.skillCategory && form.careerYear);
+    return Boolean(form.workPeriod);
   }, [eligibilityError, form, isResident, project]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
     setForm((prev) => ({ ...prev, [name]: value }));
-    if (name === 'content' && hasContactInfo(value)) {
-      setFieldError('지원 내용에는 이메일 또는 전화번호를 입력할 수 없습니다.');
-    } else {
-      setFieldError('');
-    }
+    setFieldError('');
   };
 
   const submitApplication = async (event) => {
     event.preventDefault();
-    if (hasContactInfo(form.content)) {
-      setFieldError('지원 내용에는 이메일 또는 전화번호를 입력할 수 없습니다.');
+    if (!form.email.trim()) {
+      setFieldError('이메일을 입력해 주세요.');
+      return;
+    }
+    if (!isValidEmail(form.email)) {
+      setFieldError('올바른 이메일 형식으로 입력해 주세요.');
+      return;
+    }
+    if (!form.phone.trim()) {
+      setFieldError('전화번호를 입력해 주세요.');
+      return;
+    }
+    if (!isValidPhone(form.phone)) {
+      setFieldError('올바른 전화번호 형식으로 입력해 주세요.');
       return;
     }
     setSaving(true);
     setError('');
     try {
       await developerApi.applyProject(project.id, {
-        workDuration: Number(form.workPeriod) || null,
+        workDuration: isResident ? null : Number(form.workPeriod),
         bidAmount: Number(form.bidAmount),
         proposalContent: form.content,
-        techCategory: isResident ? null : form.skillCategory,
-        experienceLevel: isResident ? null : form.careerYear,
-        headcount: isResident ? 1 : Number(form.headcount || 1),
+        email: form.email.trim(),
+        phone: form.phone.trim(),
+        techCategory: isResident ? form.skillCategory : null,
+        experienceLevel: isResident ? form.careerYear : null,
+        headcount: isResident ? Number(form.headcount || 1) : null,
       });
       alert('지원서가 제출되었습니다.');
       navigate('/developer/mypage');
@@ -120,7 +145,7 @@ export default function ApplyPage() {
         <div>
           <p className="eyebrow">Application</p>
           <h1>프로젝트 지원하기</h1>
-          <p className="subtitle">지원서에는 직접 연락처를 남길 수 없습니다.</p>
+          <p className="subtitle">지원 내용과 연락 가능한 이메일, 전화번호를 함께 제출해 주세요.</p>
         </div>
         <Link to={`/projects/${project.id}`} className="btn secondary">상세로 돌아가기</Link>
       </div>
@@ -143,15 +168,6 @@ export default function ApplyPage() {
 
           {isResident ? (
             <>
-              <label>작업 기간(일)
-                <input name="workPeriod" type="number" value={form.workPeriod} onChange={handleChange} placeholder="예: 90" required />
-              </label>
-              <label>지원 금액(만원)
-                <input name="bidAmount" type="number" value={form.bidAmount} onChange={handleChange} placeholder="예: 700" required />
-              </label>
-            </>
-          ) : (
-            <>
               <label>기술 구분
                 <select name="skillCategory" value={form.skillCategory} onChange={handleChange}>
                   <option value="개발">개발</option>
@@ -159,24 +175,42 @@ export default function ApplyPage() {
                   <option value="기획">기획</option>
                 </select>
               </label>
-              <label>연차 구분
+              <label>경력 구분
                 <input name="careerYear" value={form.careerYear} onChange={handleChange} placeholder="예: 중급" required />
               </label>
               <label>투입 인원
                 <input name="headcount" type="number" min="1" value={form.headcount} onChange={handleChange} required />
               </label>
-              <label>견적 금액(만원)
+              <label>희망 급여(만원)
+                <input name="bidAmount" type="number" value={form.bidAmount} onChange={handleChange} placeholder="예: 700" required />
+              </label>
+            </>
+          ) : (
+            <>
+              <label>예상 작업 기간(일)
+                <input name="workPeriod" type="number" value={form.workPeriod} onChange={handleChange} placeholder="예: 90" required />
+              </label>
+              <label>제안 금액(만원)
                 <input name="bidAmount" type="number" value={form.bidAmount} onChange={handleChange} placeholder="예: 800" required />
               </label>
             </>
           )}
+
+          <div className="form-grid">
+            <label>이메일
+              <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="test@example.com" required />
+            </label>
+            <label>전화번호
+              <input name="phone" value={form.phone} onChange={handleChange} placeholder="010-1234-5678" required />
+            </label>
+          </div>
 
           <label>지원 내용
             <textarea
               name="content"
               value={form.content}
               onChange={handleChange}
-              placeholder="경험, 수행 방식, 예상 일정 등을 입력하세요. 이메일과 전화번호는 입력할 수 없습니다."
+              placeholder="경험, 수행 방식, 예상 일정 등을 입력해 주세요."
               rows={8}
               required
             />

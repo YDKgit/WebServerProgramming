@@ -10,13 +10,11 @@ export default function Layout() {
   );
   const isDeveloper = loginUser?.role === 'DEVELOPER';
   const isClient = loginUser?.role === 'CLIENT';
-  const clientTab = new URLSearchParams(location.search).get('tab');
-  const requestMenuActive = location.pathname === '/client/mypage' && clientTab === 'request';
-  const managementMenuActive = location.pathname.startsWith('/client/projects')
-    || (location.pathname === '/client/mypage' && clientTab === 'projects');
-  const clientMyPageActive = location.pathname === '/client/mypage'
-    && clientTab !== 'request'
-    && clientTab !== 'projects';
+  const requestMenuActive = location.pathname === '/client-project-form'
+    || location.pathname === '/client/new-project';
+  const managementMenuActive = location.pathname === '/client-projects'
+    || location.pathname.startsWith('/client/projects');
+  const clientMyPageActive = location.pathname === '/client-mypage';
 
   useEffect(() => {
     const handleLoginUserUpdated = (event) => {
@@ -54,19 +52,19 @@ export default function Layout() {
             {isClient && (
               <>
                 <NavLink
-                  to="/client/mypage?tab=profile"
+                  to="/client-mypage"
                   className={() => (clientMyPageActive ? 'active' : undefined)}
                 >
                   마이페이지
                 </NavLink>
                 <NavLink
-                  to="/client/mypage?tab=request"
+                  to="/client-project-form"
                   className={() => (requestMenuActive ? 'active' : undefined)}
                 >
                   무료 견적 의뢰
                 </NavLink>
                 <NavLink
-                  to="/client/mypage?tab=projects"
+                  to="/client-projects"
                   className={() => (managementMenuActive ? 'active' : undefined)}
                 >
                   의뢰인 관리

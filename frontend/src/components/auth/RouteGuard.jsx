@@ -10,7 +10,7 @@ function getLoginUser() {
 }
 
 function getRoleHome(role) {
-  if (role === 'CLIENT') return '/client/mypage?tab=projects';
+  if (role === 'CLIENT') return '/client-projects';
   if (role === 'DEVELOPER') return '/developer/mypage';
   return '/projects';
 }

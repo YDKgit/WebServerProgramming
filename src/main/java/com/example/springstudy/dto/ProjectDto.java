@@ -94,8 +94,8 @@ public class ProjectDto {
         private String workContent;
         @Schema(description = "필요 기술", example = "Java 17, Spring Boot 3.x, JPA")
         private String requiredSkills;
-        @Schema(description = "참여파트", example = "기획,개발")
-        private String participationFields;
+        @Schema(description = "참여파트", example = "[\"기획\", \"개발\"]")
+        private List<String> participationFields;
         @Schema(description = "예상 기간(개월)", example = "3")
         private Integer estimatedDuration;
         @Schema(description = "근무 방식", example = "원격")
@@ -112,7 +112,7 @@ public class ProjectDto {
         private Integer budget;
         private String workContent;
         private String requiredSkills;
-        private String participationFields;
+        private List<String> participationFields;
         private Integer estimatedDuration;
         private String workType;
         private LocalDate startDate;

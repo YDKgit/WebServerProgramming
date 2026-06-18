@@ -83,7 +83,7 @@ export default function ProjectDetailPage() {
         <section className="panel">
           <h2>의뢰 내용</h2>
           <dl className="info-list">
-            <div><dt>프로젝트 분야</dt><dd>{(item.fields || []).join(', ') || '-'}</dd></div>
+            <div><dt>참여파트</dt><dd>{(item.fields || []).join(' · ') || '-'}</dd></div>
             <div><dt>기획 상태</dt><dd>{item.planningStatus || '-'}</dd></div>
             <div><dt>미팅 희망 지역</dt><dd>{item.meetingRegion || '-'}</dd></div>
             <div><dt>진행 방식</dt><dd>{item.workMethod || '-'}</dd></div>

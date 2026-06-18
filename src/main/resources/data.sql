@@ -33,13 +33,13 @@ INSERT INTO project (client_id, title, work_type, employment_type, project_field
 VALUES (5, 'ERP 시스템 커스터마이징', '상주', '상주', '풀스택', 600, 'RECRUITING', '2026-09-30', '기존 ERP 시스템에 맞춤 모듈 추가 개발.', 'Java, JSP, Oracle, jQuery', 120, '2026-10-01', '2026-05-10 09:00:00');
 
 -- application
-INSERT INTO application (project_id, developer_id, work_duration, bid_amount, proposal_content, tech_category, experience_level, headcount, applied_at)
-VALUES (1, 1, 60, 250, '쇼핑몰 유사 프로젝트 3건 완료, 빠른 납기 가능합니다.', '백엔드', '중급', 1, '2026-05-10 14:30:00');
-INSERT INTO application (project_id, developer_id, work_duration, bid_amount, proposal_content, tech_category, experience_level, headcount, applied_at)
-VALUES (1, 2, 90, 350, 'Spring Boot 기반 API 개발 경험 다수 보유, 즉시 투입 가능합니다.', '백엔드', '고급', 1, '2026-05-12 09:00:00');
-INSERT INTO application (project_id, developer_id, work_duration, bid_amount, proposal_content, tech_category, experience_level, headcount, applied_at)
-VALUES (2, 1, 45, 200, 'React 프로젝트 다수 경험, 빠른 UI 구현 자신합니다.', '프론트엔드', '중급', 1, '2026-05-13 10:00:00');
-INSERT INTO application (project_id, developer_id, work_duration, bid_amount, proposal_content, tech_category, experience_level, headcount, applied_at)
-VALUES (3, 3, 30, 180, '배치 시스템 개발 경험 있습니다. 납기 준수 자신합니다.', '백엔드', '초급', 1, '2026-04-28 16:45:00');
-INSERT INTO application (project_id, developer_id, work_duration, bid_amount, proposal_content, tech_category, experience_level, headcount, applied_at)
-VALUES (4, 2, 60, 300, 'AWS 인프라 구축 및 CI/CD 파이프라인 경험 있습니다.', 'DevOps', '고급', 1, '2026-05-05 10:00:00');
+INSERT INTO application (project_id, developer_id, work_duration, bid_amount, proposal_content, email, phone, tech_category, experience_level, headcount, applied_at)
+VALUES (1, 1, 60, 250, '쇼핑몰 유사 프로젝트 3건 완료, 빠른 납기 가능합니다.', 'dev01@example.com', '010-1111-1111', '백엔드', '중급', 1, '2026-05-10 14:30:00');
+INSERT INTO application (project_id, developer_id, work_duration, bid_amount, proposal_content, email, phone, tech_category, experience_level, headcount, applied_at)
+VALUES (1, 2, 90, 350, 'Spring Boot 기반 API 개발 경험 다수 보유, 즉시 투입 가능합니다.', 'dev02@example.com', '010-2222-2222', '백엔드', '고급', 1, '2026-05-12 09:00:00');
+INSERT INTO application (project_id, developer_id, work_duration, bid_amount, proposal_content, email, phone, tech_category, experience_level, headcount, applied_at)
+VALUES (2, 1, 45, 200, 'React 프로젝트 다수 경험, 빠른 UI 구현 자신합니다.', 'dev01@example.com', '010-1111-1111', '프론트엔드', '중급', 1, '2026-05-13 10:00:00');
+INSERT INTO application (project_id, developer_id, work_duration, bid_amount, proposal_content, email, phone, tech_category, experience_level, headcount, applied_at)
+VALUES (3, 3, 30, 180, '배치 시스템 개발 경험 있습니다. 납기 준수 자신합니다.', 'dev03@example.com', '010-3333-3333', '백엔드', '초급', 1, '2026-04-28 16:45:00');
+INSERT INTO application (project_id, developer_id, work_duration, bid_amount, proposal_content, email, phone, tech_category, experience_level, headcount, applied_at)
+VALUES (4, 2, 60, 300, 'AWS 인프라 구축 및 CI/CD 파이프라인 경험 있습니다.', 'dev02@example.com', '010-2222-2222', 'DevOps', '고급', 1, '2026-05-05 10:00:00');

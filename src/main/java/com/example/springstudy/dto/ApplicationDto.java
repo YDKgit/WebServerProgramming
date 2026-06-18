@@ -20,6 +20,10 @@ public class ApplicationDto {
         private Integer bidAmount;
         @Schema(description = "제안 내용", example = "해당 프로젝트 경험 다수 보유, 빠른 납기 가능합니다.")
         private String proposalContent;
+        @Schema(description = "연락 이메일", example = "test@example.com")
+        private String email;
+        @Schema(description = "연락 전화번호", example = "010-1234-5678")
+        private String phone;
         @Schema(description = "기술 카테고리", example = "백엔드")
         private String techCategory;
         @Schema(description = "경력 수준", example = "중급")
@@ -98,6 +102,10 @@ public class ApplicationDto {
         private String projectTitle;
         @Schema(description = "개발자 이름", example = "이자바")
         private String developerName;
+        @Schema(description = "연락 이메일", example = "test@example.com")
+        private String email;
+        @Schema(description = "연락 전화번호", example = "010-1234-5678")
+        private String phone;
         @Schema(description = "작업 기간(일)", example = "60")
         private Integer workDuration;
         @Schema(description = "희망 단가(만원)", example = "250")
