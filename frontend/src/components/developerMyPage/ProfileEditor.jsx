@@ -91,8 +91,9 @@ export default function ProfileEditor() {
     setError('');
     setMessage('');
     try {
-      const result = await developerApi.uploadProfileImage(file);
-      setProfile((prev) => ({ ...prev, profileImage: result.profileImage || result.imageUrl || '' }));
+      await developerApi.uploadProfileImage(file);
+      const refreshed = await developerApi.getProfile();
+      setProfile(toProfileView(refreshed));
       setImageLoadFailed(false);
       setMessage('프로필 이미지가 업로드되었습니다.');
     } catch (event) {

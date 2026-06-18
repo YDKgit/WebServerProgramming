@@ -25,6 +25,7 @@ public class DataInitializer implements ApplicationRunner {
 
         ResourceDatabasePopulator populator =
                 new ResourceDatabasePopulator(new ClassPathResource("data.sql"));
+
         populator.setSqlScriptEncoding("UTF-8");
         populator.execute(dataSource);
     }

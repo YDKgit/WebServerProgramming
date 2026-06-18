@@ -37,5 +37,8 @@ out/
 /uploads/
 /data/
 
+# H2 file database
+/data/
+
 ### VS Code ###
 .vscode/
